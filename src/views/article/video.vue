@@ -1,5 +1,7 @@
 <template>
-  <div>消息页</div>
+  <div>
+      视频页
+  </div>
 </template>
 
 <script>

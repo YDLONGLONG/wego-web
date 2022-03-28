@@ -1,5 +1,7 @@
 <template>
-  <div>联系我们</div>
+  <div>
+      hot页
+  </div>
 </template>
 
 <script>
