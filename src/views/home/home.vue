@@ -1,4 +1,6 @@
 <template>
+<div>
+  <div class="total"></div>
   <div class="main">
     <div class="left">
       <router-link to="/home/attention" class="col1">关注</router-link>
@@ -8,9 +10,37 @@
       <div><router-view></router-view></div>
     </div>
     <div class="right">
-      123
+      <div class="create">
+        <i class="el-icon-user-solid">创作中心</i>
+        <span>草稿箱(0)</span>
+      </div>
+      <div class="btn">
+        <el-button icon="el-icon-tickets" type="primary" circle plain></el-button>
+        <el-button icon="el-icon-video-camera" type="warning" circle plain></el-button>
+        <el-button icon="el-icon-edit-outline" type="danger" circle plain></el-button>
+        <el-button icon="el-icon-coordinate" type="success" circle plain></el-button>
+      </div>
+      <div class="txt">
+        <span>答问题</span>
+        <span>发视频</span>
+        <span>写文章</span>
+        <span>写想法</span>
+      </div>
+      <div class="tip">
+        <div class="left1">
+          <h4>开启你的创作之旅</h4>
+          <p>发布首篇内容，开通创作中心 快来成为创作者吧～</p>
+        </div>
+        <div class="right1">
+          <img src="../../assets/1.png">
+        </div>
+      </div>
+      <div class="submit">
+        <h3>＋开始创作</h3>
+      </div>
     </div>
   </div>
+</div>
 </template>
 
 <script>
@@ -20,6 +50,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.total{
+  z-index: -1;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background-color: rgb(246,246,246);
+}
 .main{
   display: grid;
   grid-template-columns: 70% 30%;
@@ -29,16 +66,77 @@ export default {
     margin: 0 1rem;
   }
   .left{
-  font-size: 16px;
-  height: 64px;
-  line-height: 60px;
-  border: 1px solid black;
+    background-color: #fff;
+    margin-top: 1rem;
+    font-size: 16px;
+    height: 64px;
+    line-height: 60px;
     .router-link-active {
-      border-bottom: #00a1d6 solid 2px;
+      color: #00a1d6;
     }
   }
   .right{
-    border: 1px solid black;
+    width: 300px;
+    height: 320px;
+    background-color: #fff;
+    margin: 1rem 0 0 1rem;
+    .create{
+      display: flex;
+      justify-content: space-between;
+      padding: 2rem;
+      font-size: 16px;
+      span{
+        color: rgb(133,144,166);
+        font-size: 14px;
+      }
+    }
+    .btn{
+      margin-left: 2rem;
+      .el-button{
+        margin: 0 1rem;
+      }
+    }
+    .txt{
+      margin-top: 1rem;
+      span{
+        margin-left: 2.2rem;
+      } 
+    }
+    .tip{
+      display: grid;
+      grid-template-columns: 70% 30%;
+      width: 260px;
+      height: 100px;
+      background-color: rgb(249,249,250);
+      margin:1rem 0 0 20px;
+      .left1{
+        width: 160px;
+        padding: 1rem;
+        h4{
+          font-size: 16px;
+        }
+        p{
+          color: rgb(133,144,166);
+        } 
+      }
+      .right1{
+        img{
+          margin-top: 2rem;
+        }
+      }
+    }
+    .submit{
+        width: 260px;
+        height: 40px;
+        border: solid 1px rgb(127,178,255);
+        border-radius: 3px;
+        margin: 2rem 0 0 2rem;
+        h3{
+          text-align: center;
+          line-height:40px;
+          color: rgb(0,102,255);
+        }
+      }
   }
 }
 </style>

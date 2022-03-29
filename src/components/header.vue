@@ -1,11 +1,9 @@
 <template>
   <div>
-    <el-menu
-    router
-  >
+    <el-menu router>
     <div class="header">
       <div class="header1">
-        <router-link :to="`/home`" class="col1">主站</router-link>
+        <router-link :to="`/home/article`" class="col1">主站</router-link>
         <router-link :to="`/home1`" class="col1">会员</router-link>
         <router-link :to="`/home2`" class="col1">发现</router-link>
         <router-link :to="`/home3`" class="col1">等你来答</router-link>
@@ -50,8 +48,11 @@ export default {
     .header1{
       margin-left: 40rem;
       .router-link-active {
-      border-bottom: #00a1d6 solid 2px;
-    }
+        border-bottom: #00a1d6 solid 2px;
+      }
+      .col1{
+        color: rgb(133,144,166);
+      }
     }
     .header2{
       display: grid;
