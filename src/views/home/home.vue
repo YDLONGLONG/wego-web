@@ -1,6 +1,6 @@
 <template>
 <div>
-  <div class="total"></div>
+  <div class="bg"></div>
   <div class="main">
     <div class="left">
       <router-link to="/home/attention" class="col1">关注</router-link>
@@ -50,7 +50,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.total{
+.bg{
   z-index: -1;
   position: fixed;
   width: 100%;

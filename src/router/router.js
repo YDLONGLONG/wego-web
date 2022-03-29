@@ -28,6 +28,29 @@ const routes = [
             },
         ]
     },
+    {
+        path: '/login',
+        component: () => import('../views/login/login.vue'),
+        redirect: '/login/loginForm',
+        children:[
+            {
+                path: '/login/loginForm',
+                component: () => import('../views/login/children/loginForm.vue'),
+            },
+            {
+                path: '/login/loginCode',
+                component: () => import('../views/login/children/loginCode.vue'),
+            },
+            {
+                path: '/login/reSet',
+                component: () => import('../views/login/children/reSet.vue'),
+            },
+            {
+                path: '/login/signIn',
+                component: () => import('../views/login/children/signIn.vue'),
+            },
+        ]
+    }
 ]
 const router = new VueRouter({
     routes

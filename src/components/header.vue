@@ -3,21 +3,21 @@
     <el-menu router>
     <div class="header">
       <div class="header1">
-        <router-link :to="`/home/article`" class="col1">主站</router-link>
-        <router-link :to="`/home1`" class="col1">会员</router-link>
-        <router-link :to="`/home2`" class="col1">发现</router-link>
-        <router-link :to="`/home3`" class="col1">等你来答</router-link>
+        <router-link to="/home/article" class="col1">主站</router-link>
+        <router-link to="/vip" class="col1">会员</router-link>
+        <router-link to="/find" class="col1">发现</router-link>
+        <router-link to="/answer" class="col1">等你来答</router-link>
       </div>
       <div class="header2">
-        <div><el-input placeholder="请输入内容" v-model="input3" class="input-with-select" type="mini">
+        <div><el-input placeholder="请输入内容" class="input-with-select" type="mini">
           <el-button slot="append" icon="el-icon-search"></el-button>
         </el-input></div>
         <div><el-button type="primary" size="medium" round>提问</el-button></div>
       </div>
       <div class="header3">
-        <router-link :to="`/home4`" class="col1">通知</router-link>
-        <router-link :to="`/home5`" class="col1">消息</router-link>
-        <router-link :to="`/avater`" class="col1">头像</router-link>
+        <router-link to="/notice" class="col1"><i class="el-icon-message-solid"></i></router-link>
+        <router-link to="/message" class="col1"><i class="el-icon-chat-line-round"></i></router-link>
+        <router-link to="/login" class="col1">登录</router-link>
       </div>
     </div>
   </el-menu>
@@ -65,7 +65,7 @@ export default {
       margin-right: 40rem;
     }
     .col1{
-      margin-right: 1rem;
+      margin-right: 2rem;
     }
   }
 }

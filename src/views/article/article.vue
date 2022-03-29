@@ -41,12 +41,11 @@ export default {
     height: 80px;
     line-height: 20px;
     overflow: hidden;
-    text-overflow:ellipsis;
     margin: 0 1rem 1rem 1rem;
   }
   .btn{
     display: flex;
-    justify-content: row;
+    justify-content: flex-start;
     height: 40px;
     .el-button{
       margin-left: 1rem;
