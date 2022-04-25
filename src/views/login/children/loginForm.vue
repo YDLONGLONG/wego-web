@@ -1,16 +1,17 @@
 <template>
   <div>
-    <el-form :model="user" status-icon :rules="rules" ref="loginForm">
+    <el-form :model="userLogin" status-icon :rules="rules" ref="userLogin">
       <el-form-item prop="email">
-        <el-input v-model="user.email" placeholder="输入邮箱"></el-input>
+        <el-input v-model="userLogin.email" placeholder="输入邮箱"></el-input>
       </el-form-item>
       <el-form-item prop="password">
-        <el-input type="password" v-model="user.password" autocomplete="off" placeholder="输入密码"></el-input>
+        <el-input type="password" v-model="userLogin.password" autocomplete="off" placeholder="输入密码"></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button style="width:30rem;margin-bottom:1rem;" type="primary" @click="login">登录</el-button>
+        <el-button style="width:49%;" type="primary" @click="login">登录</el-button>
+        <!-- 注册 -->
         <router-link to="/login/signIn" replace>
-          <el-button style="width:30rem">注册</el-button>
+          <el-button style="width:49%;margin-left:3px;">注册</el-button>
         </router-link>
       </el-form-item>
       <router-link to="/login/reSet" style="color: #00A1D6;float:left" replace>忘记密码？</router-link>
@@ -20,13 +21,15 @@
 </template>
 <script>
 import { mapActions } from 'vuex'
+import { login } from '../../../api/user'
 export default {
   data() {
     return {
-        user: {
+      userLogin: {
         email: '',
         password: ''
       },
+      hh:'hhaa',
       rules: {
         email: [
           { required: true, message: '请输入邮箱', trigger: 'blur' },
@@ -43,26 +46,27 @@ export default {
     ...mapActions(['setUserId']),
     login() {
         this.$refs.userLogin.validate(async valid => {
-            if (valid) {
-                let result = await login(this.userLogin)
-                if (result.err === 0) {
-                this.$message.success(result.msg)
-                this.setUserId(result.data._id)
-                await this.$router.go(-1)
-                } else {
-                this.$message.error(result.msg)
-                }
-            } else {
-                this.$message.error('请修改错误项')
-                return false
-            }
-        })
+        if (valid) {
+          let result = await login({account:this.userLogin.email,password:this.userLogin.password})
+          console.log(result)
+          if (result.errCode === 0) {
+            this.$message.success(result.message)
+            this.setUserId(result.data[0].userid)
+            await this.$router.go(-1)
+          } else {
+            this.$message.error(result.message)
+          }
+        } else {
+          this.$message.error('请修改错误项')
+          return false
+        }
+      })
     },
   },
 }
 </script>
 <style lang="scss" scoped>
 .el-form {
-  width: 30rem;
+  width: 28rem;
 }
 </style>

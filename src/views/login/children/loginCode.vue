@@ -22,6 +22,8 @@
   </div>
 </template>
 <script>
+import { mapActions } from 'vuex'
+import { sendEmail, codelogin } from '../../../api/user'
 export default {
   data() {
     return {
@@ -43,18 +45,20 @@ export default {
     }
   },
   methods: {
+    ...mapActions(['setUserId']),
     async codelogin() {
       this.$refs.loginCode.validate(async valid => {
         if (valid) {
           let result = await codelogin({
-            code: this.loginCode.code,
-            email: this.loginCode.email,
+            code: this.user.code,
+            account: this.user.email
           })
-          if (!result.err) {
-            this.$message.success(result.msg)
-            this.setUserId(result.data._id)
+          console.log(result)
+          if (!result.errCode) {
+            this.$message.success(result.message)
+            this.setUserId(result.data[0].userid)
             await this.$router.go(-1)
-          } else this.$message.error(result.msg)
+          } else this.$message.error(result.message)
         } else {
           this.$message.error('请修改错误项')
           return false
@@ -62,10 +66,10 @@ export default {
       })
     },
     async getCode() {
-      let result = await sendEmail(this.loginCode.email)
-      if (!result.err) {
-        this.$message.success(result.msg)
-      } else this.$message.error(result.msg)
+      let result = await sendEmail(this.user.email)
+      if (!result.errCode) {
+        this.$message.success(result.message)
+      } else this.$message.error(result.message)
       let count = 0
       this.isDisabled = true
       let tag = setInterval(() => {

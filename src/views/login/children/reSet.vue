@@ -28,6 +28,7 @@
   </div>
 </template>
 <script>
+import { sendEmail, updatePass } from '../../../api/user'
 export default {
   data() {
     let validateCheck = (rule, value, callback) => {
@@ -73,13 +74,13 @@ export default {
         if (valid) {
           let result = await updatePass({
             code: this.user.code,
-            email: this.user.email,
+            account: this.user.email,
             password: this.user.password
           })
-          if (!result.err) {
-            this.$message.success(result.msg)
+          if (!result.errCode) {
+            this.$message.success(result.message)
             await this.$router.replace('/login')
-          } else this.$message.error(result.msg)
+          } else this.$message.error(result.message)
         } else {
           this.$message.error('请修改错误项')
           return false
@@ -88,9 +89,9 @@ export default {
     },
     async getCode() {
       let result = await sendEmail(this.user.email)
-      if (!result.err) {
-        this.$message.success(result.msg)
-      } else this.$message.error(result.msg)
+      if (!result.errCode) {
+        this.$message.success(result.message)
+      } else this.$message.error(result.message)
       let count = 0
       this.isDisabled = true
       let tag = setInterval(() => {

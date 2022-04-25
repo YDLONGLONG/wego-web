@@ -9,6 +9,7 @@ const routes = [
     {
         path: '/home',
         component: () => import('../views/home/home.vue'),
+        redirect: '/login/article',
         children:[
             {
                 path: '/home/article',
@@ -50,7 +51,15 @@ const routes = [
                 component: () => import('../views/login/children/signIn.vue'),
             },
         ]
-    }
+    },
+    {
+        path: '/master',
+        component: () => import('../views/master/master.vue'),
+    },
+    {
+        path: '/write',
+        component: () => import('../views/write/write.vue'),
+    },
 ]
 const router = new VueRouter({
     routes

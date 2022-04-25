@@ -1,5 +1,5 @@
 <template>
-<div>
+<div class="show" ref="tree">
   <div class="bg"></div>
   <div class="main">
     <div class="left">
@@ -35,9 +35,11 @@
           <img src="../../assets/1.png">
         </div>
       </div>
+      <router-link to="/write">
       <div class="submit">
         <h3>＋开始创作</h3>
       </div>
+      </router-link>
     </div>
   </div>
 </div>
@@ -45,11 +47,27 @@
 
 <script>
 export default {
-
+  data(){
+    return{
+      page:0
+    }
+  },
+  mounted() {
+    this.$refs.tree.addEventListener('scroll',async e => {
+      if(e.target.scrollHeight - e.target.scrollTop - e.target.clientHeight===0){
+        this.page +=1
+        this.$bus.$emit('globalEvent',this.page)
+      }
+    }, false)
+  }
 }
 </script>
 
 <style lang="scss" scoped>
+.show{
+  height: 100vh;
+  overflow-x: hidden;
+}
 .bg{
   z-index: -1;
   position: fixed;
@@ -67,7 +85,7 @@ export default {
   }
   .left{
     background-color: #fff;
-    margin-top: 1rem;
+    margin-top: 6rem;
     font-size: 16px;
     height: 64px;
     line-height: 60px;
@@ -79,7 +97,7 @@ export default {
     width: 300px;
     height: 320px;
     background-color: #fff;
-    margin: 1rem 0 0 1rem;
+    margin: 6rem 0 0 1rem;
     .create{
       display: flex;
       justify-content: space-between;

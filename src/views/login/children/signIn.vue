@@ -19,6 +19,7 @@
 </template>
 
 <script>
+import { reg } from '../../../api/user'
 export default {
   data() {
     let validateCheck = (rule, value, callback) => {
@@ -34,7 +35,6 @@ export default {
         password: '',
         checkPass: '',
       },
-      isCanValue:false,
       rules: {
         email: [
           { required: true, message: '请输入邮箱', trigger: 'blur' },
@@ -54,31 +54,21 @@ export default {
   },
   methods: {
     register(formName) {
-      if(this.isCanValue){
         this.$refs[formName].validate(async valid => {
         if (valid) {
-          let result = await reg(this.userReg)
-          if (result.err === 0) {
+          let result = await reg({account:this.userReg.email,password:this.userReg.password})
+          console.log(result)
+          if (result.errCode === 0) {
             //注册成功
-            this.$message.success(result.msg)
+            this.$message.success(result.message)
             await this.$router.replace('/login/loginForm')
-          } else this.$message.error(result.msg)
+          } else this.$message.error(result.message)
         } else {
           this.$message.error('请修改错误项')
           return false
         }
       })
-      }else{
-        this.$message.warning("请先验证");
-      }
     },
-    success(){
-      this.$message.success("验证成功");
-      this.isCanValue = true;
-    },
-    error(){
-      this.$message.error("验证失败")
-    }
   }
 }
 </script>
