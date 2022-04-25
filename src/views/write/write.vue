@@ -69,7 +69,7 @@ export default {
         this.content = ''
         return this.$message.warning('请输入内容')
       }
-      let result = await sendTrend({ useid:this.userId ,title:this.title, content: this.content })
+      let result = await sendTrend({ userid:this.userId ,title:this.title, content: this.content })
       this.$message.success(result.message)
       this.$router.push('/home/article')
     },
