@@ -16,8 +16,17 @@ export const logout = () => ajax('/user/logout')
 export const getUserAvatar = userid => ajax('/user/getUserAvatar', { userid })
 //获取用户基本信息
 export const getUserById = _id => ajax('/user/id', { _id })
-// 修改用户信息
+// 获取用户信息
+export const GetUser = userid => ajax('/user/GetUser', { userid })
 // 获取用户邮箱
 export const getEmail = _id => ajax('/user/email', { _id })
+//修改用户基本信息
+export const updateUserInfo = data => ajax('/user/updateUserInfo', data, 'post')
 //修改密码
+export const setPassword = data => ajax('/user/setPassword', data, 'post')
+//绑定手机号
+export const bindPhone = data => ajax('/user/bindPhone', data, 'post')
+//绑定邮箱
+export const bindEmail = data => ajax('/user/bindEmail', data, 'post')
+//忘记密码
 export const updatePass = data => ajax('/user/forgetPassword', data, 'post')

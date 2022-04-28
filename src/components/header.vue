@@ -24,7 +24,7 @@
         <div v-else>
             <el-dropdown>
               <span class="el-dropdown-link">
-                <router-link to="/mine">
+                <router-link :to="`/mine/${userId}`">
                 <el-avatar :src="headUrl" icon="el-icon-user-solid" :size="48"></el-avatar>
                 </router-link>
               </span>
@@ -111,7 +111,7 @@ export default {
     display: grid;
     grid-template-columns: 35% 30% 35%;
     .header1{
-      margin-left: 40rem;
+      margin-left: 35rem;
       .router-link-active {
         border-bottom: #00a1d6 solid 2px;
       }

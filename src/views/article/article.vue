@@ -1,6 +1,7 @@
 <template>
 <div>
   <div class="card" v-for="(trend,index) in trendList" :key="index">
+    <router-link :to="`/master/${trend.trendid}`">
       <h3>{{trend.title}}</h3>
       <p v-html="trend.content"></p>
       <div class="btn">
@@ -11,6 +12,7 @@
         <i class="el-icon-star-off">收藏</i>
         <i class="el-icon-bell">举报</i>
       </div>
+      </router-link>
   </div>
   <div class="bottom">到底啦</div>
 </div>
@@ -42,7 +44,7 @@ export default {
     async getTrend() {
       let result = await getTrendPage(this.nowpage)
       this.trendList = result.data;
-      console.log(this.trendList)
+      // console.log(this.trendList)
     },
   },
 }

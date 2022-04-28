@@ -7,16 +7,18 @@ export const deleteTrend = data => ajax('/trend/deleteTrend', data, 'post')
 // 获取全部动态
 export const getTrendPage = (nowpage)=> ajax('/trend/getAllTrend', {nowpage})
 // 获取单个动态详情
-export const getTrendInfo = _id => ajax('/trend/trendinfo', {_id})
+export const getTrendInfo = trendid => ajax('/trend/getTrendInfo', {trendid})
 //赞
 export const zan = data => ajax('/trend/zan', data, 'post')
 // 发表评论
-export const sendComment = data => ajax('/trend/sendcomment', data, 'post')
+export const sendComment = data => ajax('/trend/sendComment', data, 'post')
 // 获取评论
-export const getCommentPage = (_id, page = 1) => ajax('/trend/commentpage', { _id, page })
+export const getComment = trendid => ajax('/trend/getComment', { trendid })
+// 获取回复
+export const getReply = commentid => ajax('/trend/getReply', { commentid })
 // 回复评论
 export const replyComment = data => ajax('/trend/replycomment', data, 'post')
 // 删除评论
-export const deleteComment = data => ajax('/trend/delete', data, 'post')
+export const deleteComment = commentid => ajax('/trend/deleteComment', {commentid}, 'post')
 //查询动态
 export const searchTrend = keyWord => ajax('/video/searchtrend', {keyWord})

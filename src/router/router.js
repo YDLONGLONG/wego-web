@@ -53,12 +53,16 @@ const routes = [
         ]
     },
     {
-        path: '/master',
+        path: '/master/:trendid',
         component: () => import('../views/master/master.vue'),
     },
     {
         path: '/write',
         component: () => import('../views/write/write.vue'),
+    },
+    {
+        path: '/mine/:userid',
+        component: () => import('../views/mine/mine.vue'),
     },
 ]
 const router = new VueRouter({
