@@ -20,5 +20,7 @@ export const getReply = commentid => ajax('/trend/getReply', { commentid })
 export const replyComment = data => ajax('/trend/replycomment', data, 'post')
 // 删除评论
 export const deleteComment = commentid => ajax('/trend/deleteComment', {commentid}, 'post')
-//查询动态
-export const searchTrend = keyWord => ajax('/video/searchtrend', {keyWord})
+// 查询动态
+export const searchTrend = data => ajax('/trend/searchTrend', data)
+// 获取全部评论回复
+export const getAllCR = commentid => ajax('/trend/getAllCR', {commentid})

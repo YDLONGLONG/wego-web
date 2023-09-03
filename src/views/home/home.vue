@@ -3,11 +3,13 @@
   <div class="bg"></div>
   <div class="main">
     <div class="left">
+      <el-menu router>
       <router-link to="/home/attention" class="col1">关注</router-link>
       <router-link to="/home/article" class="col1">推荐</router-link>
       <router-link to="/home/hot" class="col1">热榜</router-link>
-      <router-link to="/home/video" class="col1">视频</router-link>
-      <div><router-view></router-view></div>
+      <router-link to="/home/video" class="col1">搜索</router-link>
+      <div style="background-color: rgb(246,246,246);padding-top: 0.1rem;"><router-view></router-view></div>
+    </el-menu>
     </div>
     <div class="right">
       <div class="create">
@@ -49,7 +51,8 @@
 export default {
   data(){
     return{
-      page:0
+      page:0,
+      email:'1772653245@qq.com'
     }
   },
   mounted() {
@@ -59,6 +62,9 @@ export default {
         this.$bus.$emit('globalEvent',this.page)
       }
     }, false)
+  },
+  methods:{
+    
   }
 }
 </script>

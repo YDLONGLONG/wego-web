@@ -78,10 +78,10 @@ export default {
           phone:'',
           email:'',
           userinfo:{
-          age:'',
-          sex:'',
-          birthday:'',
-          address:''
+            age:'',
+            sex:'',
+            birthday:'',
+            address:''
           }
         },
         headurl:'',

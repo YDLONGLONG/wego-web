@@ -43,7 +43,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['setUserId']),
+    ...mapActions(['setUserId','setUserName']),
     login() {
         this.$refs.userLogin.validate(async valid => {
         if (valid) {
@@ -52,6 +52,7 @@ export default {
           if (result.errCode === 0) {
             this.$message.success(result.message)
             this.setUserId(result.data[0].userid)
+            this.setUserName(result.data[0].username)
             await this.$router.go(-1)
           } else {
             this.$message.error(result.message)

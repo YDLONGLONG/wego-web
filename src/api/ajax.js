@@ -3,7 +3,7 @@ ajax请求函数模块
 返回值: promise对象(异步返回的数据是: response.data)
  */
 import axios from 'axios'
-const baseURL = 'http://localhost:3000'
+const baseURL = 'http://localhost:4001'
 const http = axios.create({ baseURL, withCredentials: true })
 export default function ajax(url, data = {}, type = 'get') {
   return new Promise(function(resolve, reject) {

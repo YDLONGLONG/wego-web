@@ -9,8 +9,8 @@
         <router-link to="/master" class="col1">等你来答</router-link>
       </div>
       <div class="header2">
-        <div><el-input placeholder="请输入内容" class="input-with-select" type="mini">
-          <el-button slot="append" icon="el-icon-search"></el-button>
+        <div><el-input placeholder="请输入内容" class="input-with-select" type="mini" v-model="keyWord">
+          <el-button slot="append" icon="el-icon-search" @click="searchTrend"></el-button>
         </el-input></div>
         <div><el-button type="primary" size="medium" round>提问</el-button></div>
       </div>
@@ -49,7 +49,8 @@ export default {
   name:'Header',
   data(){
     return{
-      headUrl: ""
+      headUrl: "",
+      keyWord: ""
     }
   },
   computed: {
@@ -61,7 +62,7 @@ export default {
       if (newValue) {
         this.getUserAvatar();
       }
-    }
+    },
   },
   created() {
     this.init();
@@ -84,6 +85,10 @@ export default {
         this.headUrl = this.$apiServer + result.data[0].avatar;
         console.log(this.headUrl)
       }
+    },
+    //搜索
+    async searchTrend() {
+      if (this.keyWord) this.$router.push({path: "/home/video",query: {keyWord: this.keyWord}});
     },
     async init() {
       try {

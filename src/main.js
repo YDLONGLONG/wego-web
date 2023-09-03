@@ -8,7 +8,8 @@ import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 // 过滤器
 import './utils/filter'
-let BASE_URL = 'http://localhost:3000'
+
+let BASE_URL = 'http://localhost:4001'
 Vue.prototype.$apiServer = BASE_URL
 Vue.config.productionTip = false
 Vue.prototype.$bus = new Vue
