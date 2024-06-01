@@ -1,5 +1,6 @@
 module.exports = {
-    publicPath: process.env.NODE_ENV === 'production' ? '/wego-web/' : '/',
+    // publicPath: process.env.NODE_ENV === 'production' ? './wego-web/' : './',
+    publicPath: './',
     lintOnSave: false,
     devServer: {
       port: 4002,
