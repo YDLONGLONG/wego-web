@@ -4,14 +4,54 @@
     <div class="header">
       <div class="header1">
         <router-link to="/home/article" class="col1">主站</router-link>
-        <router-link to="/vip" class="col1">会员</router-link>
-        <router-link to="/find" class="col1">发现</router-link>
-        <router-link to="/master" class="col1">等你来答</router-link>
+        <router-link to="/vip" class="col1">游戏1</router-link>
+        <router-link to="/vip2" class="col1">游戏2</router-link>
+        <router-link to="/vip3" class="col1">游戏3</router-link>
+        <router-link to="/vip4" class="col1">游戏4</router-link>
+        <!-- <router-link to="/find" class="col1">发现</router-link>
+        <router-link to="/master" class="col1">等你来答</router-link> -->
       </div>
       <div class="header2">
-        <div><el-input placeholder="请输入内容" class="input-with-select" type="mini" v-model="keyWord">
-          <el-button slot="append" icon="el-icon-search" @click="searchTrend"></el-button>
-        </el-input></div>
+        <div>
+          <el-dropdown trigger="hover" placement="top-start">
+            <span class="el-dropdown-link">
+              <el-input placeholder="请输入内容" class="input-with-select" type="mini" v-model="keyWord" @input="searchTips">
+              <el-button slot="append" icon="el-icon-search" @click="searchTrend"></el-button>
+              </el-input>
+            </span>
+            <el-dropdown-menu slot="dropdown">
+              <el-card class="box-card" v-if="searchHistory.length>0 && !keyWord">
+                <div slot="header" class="clearfix">
+                  <span>历史搜索</span>
+                  <el-button style="float: right; padding: 3px 0" type="text" @click="clearAllHistory">清空全部</el-button>
+                </div>
+                <el-tag
+                  v-for="tag,index in searchHistory"
+                  :key="index"
+                  closable
+                  type="info"
+                  style="margin: 1rem;cursor:pointer;"
+                  @close="clearHistory(tag)"
+                  @click="searchTip(tag)">
+                  {{tag}}
+                </el-tag>
+              </el-card>
+              <el-card class="box-card" v-if="hotTip.length>0 && !keyWord">
+                <div slot="header" class="clearfix">
+                  <span>热门搜索</span>
+                </div>
+                <div v-for="o,i in hotTip" :key="i">
+                  <el-dropdown-item style="flex: 1;"><div @click="searchTip(o.tipName)">{{ i+1 }} {{ o.tipName }}</div></el-dropdown-item>
+                </div>
+              </el-card>
+              <el-card class="box-card"  v-if="searchTipList.length>0 && keyWord">
+                <div v-for="o,i in searchTipList" :key="i">
+                  <el-dropdown-item><div @click="searchTip(o.title)">{{ i+1 }} {{ o.title }}</div></el-dropdown-item>
+                </div>
+              </el-card>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </div>
         <div><el-button type="primary" size="medium" round>提问</el-button></div>
       </div>
       <div class="header3">
@@ -45,12 +85,17 @@
 <script>
 import { mapState, mapActions } from "vuex";
 import { isLogin, logout, getUserAvatar } from "../api/user";
+import { searchTips,getHotTip,addHotTip } from "../api/trend";
+import _ from 'lodash'
 export default {
   name:'Header',
   data(){
     return{
       headUrl: "",
-      keyWord: ""
+      keyWord: "",
+      searchTipList: [],
+      searchHistory: [],
+      hotTip:[]
     }
   },
   computed: {
@@ -68,11 +113,14 @@ export default {
     this.init();
     this.getUserAvatar();
   },
+  mounted() {
+    this.getHistory();
+    this.getHotTip()
+  },
   methods:{
     ...mapActions(["setUserId"]),
     async logout() {
       let result = await logout();
-      console.log(result)
       this.setUserId("");
       this.headUrl = "";
       this.$message.success(result.message);
@@ -83,13 +131,60 @@ export default {
       if (this.userId) {
         let result = await getUserAvatar(this.userId);
         this.headUrl = this.$apiServer + result.data[0].avatar;
-        console.log(this.headUrl)
       }
     },
-    //搜索
+    //搜索按钮跳转
     async searchTrend() {
       if (this.keyWord) this.$router.push({path: "/home/video",query: {keyWord: this.keyWord}});
+      await addHotTip(this.keyWord)
+      this.addHistory();
+      this.getHistory();
     },
+    //搜索历史跳转
+    async searchTip(keyWord) {
+      if (keyWord) this.$router.push({path: "/home/video",query: {keyWord: keyWord}});
+      await addHotTip(keyWord)
+      this.addHistory(keyWord);
+      this.getHistory();
+    },
+    addHistory(keyWord) {
+      keyWord == null ? this.searchHistory.unshift(this.keyWord) : this.searchHistory.unshift(keyWord);
+      let historyArr0 = new Set(this.searchHistory);
+      let historyArr = Array.from(historyArr0);
+      if(historyArr.length>5)historyArr.pop()
+      localStorage.setItem('searchList', JSON.stringify(historyArr))
+    },
+    getHistory(){
+      if(!localStorage.getItem('searchList')){
+        localStorage.getItem('searchList', '[]')
+      }else{
+        this.searchHistory = JSON.parse( localStorage.getItem('searchList') )
+      }
+    },
+    clearAllHistory(){
+      if(confirm('确定要清空历史记录吗？')){
+        localStorage.removeItem('searchList');
+        this.searchHistory = [];
+        this.$forceUpdate();
+      }
+    },
+    clearHistory(tag){
+      this.searchHistory = this.searchHistory.filter(item => item != tag)
+      localStorage.setItem('searchList', JSON.stringify(this.searchHistory))
+    },
+    async getHotTip(){
+      let result = await getHotTip();
+      this.hotTip = result.data;
+    },
+    //搜索提示
+    searchTips:_.debounce(async function(){
+      if (this.keyWord==''){
+        this.searchTipList = [];
+        return;
+      }
+      let result = await searchTips(this.keyWord);
+      this.searchTipList = result.data;
+    },1000),
     async init() {
       try {
         let result = await isLogin();
@@ -143,5 +238,25 @@ export default {
       margin-right: 2rem;
     }
   }
+}
+.clearfix:before,
+.clearfix:after {
+  display: table;
+  content: "";
+}
+.clearfix:after {
+  clear: both
+}
+.box-card {
+  width: 400px;
+}
+
+.el-dropdown-link {
+  cursor: pointer;
+  color: #409EFF;
+}
+.el-dropdown-menu{
+  margin: 0;
+  padding: 0;
 }
 </style>

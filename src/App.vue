@@ -1,7 +1,12 @@
 <template>
   <div>
-    <Header />
-    <router-view></router-view>
+    <div v-if="$route.meta.keepAlive">
+      <Header />
+      <router-view></router-view>
+    </div>
+    <div v-if="!$route.meta.keepAlive">
+      <router-view></router-view>
+    </div>
   </div>
 </template>
 
@@ -14,6 +19,4 @@ export default {
 }
 </script>
 
-<style>
-
-</style>
+<style></style>

@@ -24,3 +24,9 @@ export const deleteComment = commentid => ajax('/trend/deleteComment', {commenti
 export const searchTrend = data => ajax('/trend/searchTrend', data)
 // 获取全部评论回复
 export const getAllCR = commentid => ajax('/trend/getAllCR', {commentid})
+// 查询动态提示
+export const searchTips = keyWord => ajax('/trend/searchTips', {keyWord})
+// 获取热搜
+export const getHotTip = () => ajax('/trend/getHotTip')
+// 热搜词+1
+export const addHotTip = tipName => ajax('/trend/addHotTip', {tipName}, 'post')

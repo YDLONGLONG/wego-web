@@ -58,10 +58,12 @@
     methods: {
       async searchTrend(keyWord){
         let res = await searchTrend({keyWord:keyWord,nowpage:0});
-        this.trendList = res.data;
-        this.trendList.forEach(item=>{
-          this.getImgs(item)
-        })
+          if(res.data.length>0){
+            this.trendList = res.data;
+            this.trendList.forEach(item=>{
+            this.getImgs(item)
+          })
+        }
       },
       getImgs(item){
         let imgs = item.content.match(/<img.*?(?:>|\/>)/gi);

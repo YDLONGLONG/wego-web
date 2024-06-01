@@ -14,6 +14,7 @@ Vue.prototype.$apiServer = BASE_URL
 Vue.config.productionTip = false
 Vue.prototype.$bus = new Vue
 Vue.use(ElementUI)
+
 new Vue({
   router,
   store,
