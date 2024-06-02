@@ -61,16 +61,16 @@
                             </el-tag>
                         </el-card>
                         <div>
-                            <div>
-                                <el-card class="mainstage">
-                                    <div v-for="(item, index) in items" :key="index">
-                                        <span v-if="item[1] == 99" style="color: lightcoral;">[boss]</span>
-                                        <span v-else style="color: lightseagreen;">[我方]</span>
-                                        {{ item[0] }}:{{ item[3] }}
-                                    </div>
-                                </el-card>
-                            </div>
-
+                            <el-card>
+                                <div style="font-size: 18px;text-align: center;">回合结束:{{ getTime }}</div>
+                            </el-card>
+                            <el-card class="mainstage">
+                                <div v-for="(item, index) in items" :key="index">
+                                    <span v-if="item[1] == 99" style="color: lightcoral;">[boss]</span>
+                                    <span v-else style="color: lightseagreen;">[我方]</span>
+                                    {{ item[0] }}:{{ item[3] }}
+                                </div>
+                            </el-card>
                         </div>
                         <el-card class="box-card1">
                             <el-progress :text-inside="true" :stroke-width="26"
@@ -178,12 +178,26 @@ export default {
             bossIndex: [0, 0, 0, 0],
             meStatus: 0,
             bossStatus: 0,
+            getTime: 30,
+            timer: "",
         }
     },
     components: {
 
     },
     methods: {
+        countdown() {
+            if (this.getTime > 0) {
+                this.timer = setTimeout(() => {
+                    this.getTime -= 1;
+                    this.countdown();
+                }, 1000);
+            }else{
+                this.getTime = 30;
+                this.countdown();
+                this.endTurn();
+            }
+        },
         //使用卡牌
         useMe(item, index) {
             if (item == "恢复100hp") {
@@ -469,7 +483,7 @@ export default {
                 this.boss[3].size = "无"
             }
             this.bossAttack();
-            this.mePower.indexOf("雷电充能") == -1 ? "" : this.me[1].size += 50 && this.items.unshift(["雷电充能", 98, 98, "触发致命一击!"]);
+            this.mePower.indexOf("雷电充能") == -1 ? "" : this.me[1].size += 10 && this.items.unshift(["雷电充能", 98, 98, "触发致命一击!"]);
             this.mePower.indexOf("浪涛汹涌") == -1 ? "" : this.me[3].size = "无" && this.items.unshift(["浪涛汹涌", 98, 98, "触发解除控制!"]);
             this.me[2].size - this.boss[1].size < 0 ? this.me[0].size += this.me[2].size - this.boss[1].size : "";
             this.boss[2].size - this.me[1].size < 0 ? this.boss[0].size += this.boss[2].size - this.me[1].size : "";
@@ -558,6 +572,9 @@ export default {
         round(newVal, oldVal) {
             this.startTurn();
             this.isWin();
+            clearTimeout(this.timer);
+            this.getTime = 30;
+            this.countdown();
         },
         chapter(newVal, oldVal) {
             if (newVal == 2) {
@@ -593,7 +610,7 @@ export default {
                     arr1[i].style.backgroundColor = '';
                 }
             }
-        }
+        },
     },
 }
 </script>
@@ -651,7 +668,7 @@ export default {
 
 .mainstage {
     width: 700px;
-    height: 300px;
+    height: 225px;
     overflow: auto;
 }
 
