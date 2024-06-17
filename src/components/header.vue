@@ -4,12 +4,12 @@
     <div class="header">
       <div class="header1">
         <router-link to="/home/article" class="col1">主站</router-link>
-        <router-link to="/vip" class="col1">游戏1</router-link>
+        <!-- <router-link to="/vip" class="col1">游戏1</router-link>
         <router-link to="/vip2" class="col1">游戏2</router-link>
         <router-link to="/vip3" class="col1">游戏3</router-link>
-        <router-link to="/vip4" class="col1">游戏4</router-link>
-        <!-- <router-link to="/find" class="col1">发现</router-link>
-        <router-link to="/master" class="col1">等你来答</router-link> -->
+        <router-link to="/vip4" class="col1">游戏4</router-link> -->
+        <router-link to="/find" class="col1">发现</router-link>
+        <router-link to="/master" class="col1">等你来答</router-link>
       </div>
       <div class="header2">
         <div>
