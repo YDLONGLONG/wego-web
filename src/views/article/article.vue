@@ -20,13 +20,13 @@
     <router-link to="/vip">游戏1</router-link>
   </div>
   <div class="card">
-    <router-link to="/vip1">游戏2</router-link>
+    <router-link to="/vip2">游戏2</router-link>
   </div>
   <div class="card">
-    <router-link to="/vip2">游戏3</router-link>
+    <router-link to="/vip3">游戏3</router-link>
   </div>
   <div class="card">
-    <router-link to="/vip33">游戏4</router-link>
+    <router-link to="/vip4">游戏4</router-link>
   </div>
   <div class="bottom">到底啦</div>
 </div>

@@ -499,14 +499,14 @@ export default {
             if (num <= 0.25) {
                 this.boss[1].size = Math.floor((Math.random() * 100) + 200);
                 this.items.unshift(["使用伤害", 99, 99, "造成" + (this.boss[1].size - this.me[2].size) + "点伤害"]);
-            } else if (0.25 < num <= 0.5) {
+            } else if (num > 0.25 && num <= 0.5) {
                 this.boss[2].size += 200;
                 this.items.unshift(["使用护盾", 99, 99, "获得200点护盾"]);
-            } else if (0.5 < num <= 0.75) {
+            } else if (num > 0.5 && num <= 0.75) {
                 this.boss[0].size += 200;
                 this.items.unshift(["使用回血", 99, 99, "恢复200血量"]);
                 this.boss[0].size >= 1000 ? this.boss[0].size = 1000 : this.boss[0].size;
-            } else if (0.75 < num <= 1) {
+            } else if (num > 0.75 && num <= 1) {
                 this.boss[1].size = Math.floor((Math.random() * 50) + 50);
                 if (Math.random() < 0.25) {
                     this.me[2].size = 0;
