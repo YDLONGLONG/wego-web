@@ -75,7 +75,7 @@
                             </div>
                             <div class="meItemText">
                                 <p>回血</p>
-                                <p>{{ meActive.recover }}</p>
+                                <p>{{ Math.floor(meActive.recover) }}</p>
                             </div>
                             <div class="meItemText">
                                 <p>收入</p>
@@ -89,11 +89,12 @@
                                 <div class="character">
                                     <div class="progress">
                                         <el-progress :text-inside="true" :stroke-width="24" class="progress-bar"
-                                            :percentage="bossActive.blood < bosss[bossIndex].blood ? bossActive.blood / bosss[bossIndex].blood * 100 : 100"
+                                            :percentage="(bossActive.blood < bosss[bossIndex].blood ? bossActive.blood / bosss[bossIndex].blood * 100 : 100)
+                                                || (bossActive.blood < 0 ? 0 : bossActive.blood / bosss[bossIndex].blood * 100)"
                                             :format="formatBossBlood" status="success"></el-progress>
                                         <el-progress :text-inside="true" :stroke-width="22"
-                                            :percentage="bossActive.energy / 10" :format="formatBossPower" status="warning"
-                                            class="progress-bar"></el-progress>
+                                            :percentage="(bossActive.energy > 1000 ? 100 : bossActive.energy / 10) || (bossActive.energy < 0 ? 0 : bossActive.energy / 10)"
+                                            :format="formatBossPower" status="warning" class="progress-bar"></el-progress>
                                     </div>
                                     <img :src="bosss[bossIndex].img" class="boss" />
                                     <div v-for=" damage  in  bossDamages " :key="damage.id" class="damage-popup"
@@ -123,11 +124,12 @@
                                     </div>
                                     <div class="progress">
                                         <el-progress :text-inside="true" :stroke-width="24" class="progress-bar"
-                                            :percentage="meActive.blood < meMax.blood ? meActive.blood / meMax.blood * 100 : 100"
+                                            :percentage="(meActive.blood < meMax.blood ? meActive.blood / meMax.blood * 100 : 100)
+                                                || (meActive.blood < 0 ? 0 : meActive.blood / meMax.blood * 100)"
                                             :format="formatMeBlood" status="success"></el-progress>
                                         <el-progress :text-inside="true" :stroke-width="22"
-                                            :percentage="meActive.energy / 10" :format="formatMePower" status="warning"
-                                            class="progress-bar"></el-progress>
+                                            :percentage="(meActive.energy > 1000 ? 100 : meActive.energy / 10) || (meActive.energy < 0 ? 0 : meActive.energy / 10)"
+                                            :format="formatMePower" status="warning" class="progress-bar"></el-progress>
                                     </div>
                                 </div>
                             </div>
@@ -278,11 +280,24 @@
                 </div>
             </div>
         </el-dialog>
+        <el-dialog title="boss关奖励" :visible.sync="bossDialogVisible" width="50%" center :before-close="handleClose">
+            <div class="dialog-content">
+                <div v-for="( item, index ) in  shop" :key="index" @click="buy(index, 'boss')">
+                    <el-card class="card-item">
+                        <div slot="header" style="text-align: center;">
+                            <span>{{ item.name }}</span>
+                        </div>
+                        <div style="text-align: center;">{{ item.info }}</div>
+                    </el-card>
+                </div>
+            </div>
+        </el-dialog>
     </div>
 </template>
   
 <script>
 import { bosss1, artifact1, card1, question1 } from '@/utils/index.js';
+import { v4 as uuidv4 } from 'uuid';
 export default {
     data() {
         return {
@@ -343,6 +358,7 @@ export default {
             shopDialogVisible: false,
             shop: [],
             questionDialogVisible: false,
+            bossDialogVisible: false,
             time: 0,
             isLessHalf: false,
             meStones: [],
@@ -389,6 +405,7 @@ export default {
                     }
                     this.bossActive = JSON.parse(JSON.stringify(this.bosss[this.bossIndex]));
                     this.drawCard();
+                    this.meCardDialogVisible = false;
                     this.cardDialogVisible = true;
                     this.meActive.blood = this.meMax.blood;
                     this.meActive.power = this.meMax.power;
@@ -418,7 +435,7 @@ export default {
                         this.meActive.reverse += 15 * num * this.meCard.find(i => i.name == '紧急反伤').num;
                     }
                     this.isLessHalf = true;
-                } else if (newVal.blood > this.meMax.blood / 2) {
+                } else if (newVal.blood > this.meMax.blood / lv) {
                     if (this.meCard.some(item => item.name == '紧急治疗') && this.isLessHalf == true && this.time !== 0) {
                         this.meActive.recover -= 50 * num * this.meCard.find(i => i.name == '紧急治疗').num;
                     }
@@ -435,10 +452,13 @@ export default {
         },
         bossIndex(val) {
             if ([5, 10, 15, 20, 25, 30].includes(val + 1)) {
-                this.drawShop();
+                this.drawShop(6);
             }
             if ([3, 8, 13, 18, 23, 28].includes(val + 1)) {
                 this.ask();
+            }
+            if ([6, 11, 16, 21, 26].includes(val + 1)) {
+                this.drawShop(2);
             }
         },
         time(val) {
@@ -474,7 +494,7 @@ export default {
                     this.meActive.energy += 300 * this.meCard.find(i => i.name == '战前充电').num;
                 }
             }
-            if (val % 6 == 0) {
+            if (val % 6 == 0 && this.meArtifact.some(item => item.name == '咖啡')) {
                 if (this.meCard.some(item => item.name == '扇巴掌')) {
                     this.generateDamage('boss', 'normal', this.bossActive.blood * 0.1 * this.meCard.find(i => i.name == '扇巴掌').num);
                 }
@@ -533,7 +553,7 @@ export default {
     },
     methods: {
         generateDamage(to, damageType, damageValue) {
-            const damageId = Date.now();
+            const damageId = uuidv4();
             const damagePosition = this.getRandomPosition();
             if (to == 'boss') {
                 if (damageType == 'heal') {
@@ -668,18 +688,18 @@ export default {
                         if (this.meArtifact.some(item => item.name == '小刀')) {
                             let num = Math.floor(Math.random() * 100);
                             if (num < this.meActive.critical) {
-                                this.generateDamage('boss', 'normal', this.meActive.big * (this.meActive.criticalDamage / 100));
+                                this.generateDamage('boss', 'normal', (this.meActive.big + this.meActive.power) * (this.meActive.criticalDamage / 100));
                             }
                         } else {
-                            this.generateDamage('boss', 'normal', this.meActive.big);
+                            this.generateDamage('boss', 'normal', this.meActive.big + this.meActive.power);
                         }
-                        this.meActive.energy = 0;
                         if (this.meCard.some(item => item.name == '松口气')) {
                             this.generateDamage('me', 'heal', 250 * this.meCard.find(i => i.name == '松口气').num);
                         }
                         if (this.meCard.some(item => item.name == '蓄能大招')) {
                             this.meActive.energy += 190 * this.meCard.find(i => i.name == '蓄能大招').num;
                         }
+                        this.meActive.energy = 0;
                     }
                     //我的恢复血量
                     this.meActive.recover > 0 ? this.generateDamage('me', 'heal', this.meActive.recover) : '';
@@ -717,7 +737,7 @@ export default {
                             num = 40 + 10 * this.meArtifact.find(i => i.name == '法棍').num;
                         }
                         if (this.meCard.some(item => item.name == '硬斧')) {
-                            this.generateDamage('boss', 'normal', num * this.meCard.find(i => i.name == '硬斧').num);
+                            this.generateDamage('boss', 'normal', num * (1 + this.meCard.find(i => i.name == '硬斧').num));
                         } else {
                             this.generateDamage('boss', 'normal', num);
                         }
@@ -745,7 +765,7 @@ export default {
                     if (this.meActive.reverse > 0) {
                         if (this.meArtifact.some(item => item.name == '筷子')) {
                             this.generateDamage('boss', 'reverse', (this.meActive.reverse + this.bossActive.seriousInjury) * (1 + this.meArtifact.find(i => i.name == '筷子').num));
-                        }else{
+                        } else {
                             this.generateDamage('boss', 'reverse', this.meActive.reverse + this.bossActive.seriousInjury);
                         }
                         if (this.meCard.some(item => item.name == '复仇')) {
@@ -762,7 +782,7 @@ export default {
                         if (this.meArtifact.some(item => item.name === '钝角') && num < this.meActive.dodge) {
                             this.$message.warning('闪避boss的大招!');
                         } else {
-                            this.generateDamage('me', 'normal', this.bossActive.big);
+                            this.generateDamage('me', 'normal', this.bossActive.big + this.bossActive.power);
                         }
                     }
                     //boss恢复血量
@@ -892,32 +912,25 @@ export default {
             }
         },
         //商店
-        drawShop() {
-            this.shopDialogVisible = true;
+        drawShop(num) {
+            num == 6 ? this.shopDialogVisible = true : this.bossDialogVisible = true;
             this.shop = [];
-            for (let i = 0; i < 6; i++) {
+            for (let i = 0; i < num; i++) {
                 let index = Math.floor(Math.random() * this.artifact.length);
                 this.shop.indexOf(this.artifact[index]) == -1 ? this.shop.push(this.artifact[index]) : "";
             }
-            if (this.shop.length < 6) {
-                this.drawShop();
+            if (this.shop.length < num) {
+                this.drawShop(num);
             }
         },
         //购买
-        buy(index) {
-            if (this.money >= this.shop[index].price) {
+        buy(index, name) {
+            if (this.money >= this.shop[index].price || name == 'boss') {
                 if (this.meArtifact.indexOf(this.shop[index]) == -1) {
                     this.meArtifact.push(this.shop[index]);
                 } else {
-                    this.meArtifact[this.shop[index]].num += 1;
+                    this.meArtifact[this.meArtifact.indexOf(this.shop[index])].num += 1;
                 }
-                let num = 1;
-                if (this.meArtifact.some(item => item.name == '信用卡')) {
-                    num = 1 / (2 * this.meArtifact.find(i => i.name == '信用卡').num);
-                }
-                this.money -= this.shop[index].price * num;
-                this.totalMoney += this.shop[index].price * num;
-                this.shop.splice(index, 1);
                 if (this.shop[index].name == '龙心') {
                     this.meMax.blood += 250;
                     this.meActive.blood = this.meMax.blood;
@@ -970,6 +983,17 @@ export default {
                 } else if (this.shop[index].name == '信用卡') {
                     this.meActive.money -= 25;
                     this.meActive.money < 0 ? this.meActive.money = 0 : '';
+                }
+                if (name == 'boss') {
+                    this.bossDialogVisible = false;
+                } else {
+                    let num = 1;
+                    if (this.meArtifact.some(item => item.name == '信用卡')) {
+                        num = 1 / (2 * this.meArtifact.find(i => i.name == '信用卡').num);
+                    }
+                    this.money -= this.shop[index].price * num;
+                    this.totalMoney += this.shop[index].price * num;
+                    this.shop.splice(index, 1);
                 }
             } else {
                 return this.$message.warning("金币不足");

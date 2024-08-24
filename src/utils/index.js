@@ -158,7 +158,7 @@ let element1 = [
 
 let bosss1 = [
     {
-        img: require('@/assets/金牛座.jpeg'),
+        img: require('@/assets/巨蟹座.jpeg'),
         blood: 1500,
         energy: 0,
         energyRecover: 0,
@@ -175,8 +175,8 @@ let bosss1 = [
         attack: [1, 1, 1, 1, 1]
     },
     {
-        img: require('@/assets/处女座.jpeg'),
-        blood: 2000,
+        img: require('@/assets/巨蟹座.jpeg'),
+        blood: 1600,
         energy: 0,
         energyRecover: 0,
         power: 30,
@@ -192,8 +192,25 @@ let bosss1 = [
         attack: [1, 1, 1, 1, 1]
     },
     {
-        img: require('@/assets/双鱼座.jpeg'),
-        blood: 2500,
+        img: require('@/assets/巨蟹座.jpeg'),
+        blood: 1800,
+        energy: 0,
+        energyRecover: 0,
+        power: 30,
+        big: 500,
+        speed: 100,
+        defense: 0,
+        reverse: 0,
+        critical: 0,
+        criticalDamage: 200,
+        dodge: 0,
+        seriousInjury: 0,
+        recover: 0,
+        attack: [1, 1, 1, 1, 1]
+    },
+    {
+        img: require('@/assets/巨蟹座.jpeg'),
+        blood: 2000,
         energy: 0,
         energyRecover: 0,
         power: 30,
@@ -213,7 +230,7 @@ let bosss1 = [
         blood: 3000,
         energy: 0,
         energyRecover: 0,
-        power: 30,
+        power: 10,
         big: 500,
         speed: 100,
         defense: 0,
@@ -226,8 +243,8 @@ let bosss1 = [
         attack: [1, 1, 1, 1, 1]
     },
     {
-        img: require('@/assets/天蝎座.jpeg'),
-        blood: 3500,
+        img: require('@/assets/巨蟹座.jpeg'),
+        blood: 2200,
         energy: 0,
         energyRecover: 0,
         power: 30,
@@ -241,6 +258,74 @@ let bosss1 = [
         seriousInjury: 0,
         recover: 0,
         attack: [1, 1, 1, 1, 1]
+    },
+    {
+        img: require('@/assets/巨蟹座.jpeg'),
+        blood: 2400,
+        energy: 0,
+        energyRecover: 0,
+        power: 30,
+        big: 500,
+        speed: 100,
+        defense: 0,
+        reverse: 0,
+        critical: 0,
+        criticalDamage: 200,
+        dodge: 0,
+        seriousInjury: 0,
+        recover: 0,
+        attack: [1, 1, 1, 1, 1]
+    },
+    {
+        img: require('@/assets/巨蟹座.jpeg'),
+        blood: 2600,
+        energy: 0,
+        energyRecover: 0,
+        power: 30,
+        big: 500,
+        speed: 100,
+        defense: 0,
+        reverse: 0,
+        critical: 0,
+        criticalDamage: 200,
+        dodge: 0,
+        seriousInjury: 0,
+        recover: 0,
+        attack: [1, 1, 1, 1, 1]
+    },
+    {
+        img: require('@/assets/巨蟹座.jpeg'),
+        blood: 2800,
+        energy: 0,
+        energyRecover: 0,
+        power: 30,
+        big: 500,
+        speed: 100,
+        defense: 0,
+        reverse: 0,
+        critical: 0,
+        criticalDamage: 200,
+        dodge: 0,
+        seriousInjury: 0,
+        recover: 0,
+        attack: [1, 1, 1, 1, 1]
+    },
+    {
+        img: require('@/assets/巨蟹座.jpeg'),
+        blood: 5000,
+        energy: 0,
+        energyRecover: 0,
+        power: 30,
+        big: 1000,
+        speed: 0,
+        defense: 0,
+        reverse: 0,
+        critical: 0,
+        criticalDamage: 200,
+        dodge: 0,
+        seriousInjury: 0,
+        recover: 0,
+        attack: []
     }
 ]
 
