@@ -911,7 +911,6 @@ export default {
                 } else {
                     this.meArtifact[this.shop[index]].num += 1;
                 }
-                this.meArtifact.find(i => i.name == '法棍').num
                 let num = 1;
                 if (this.meArtifact.some(item => item.name == '信用卡')) {
                     num = 1 / (2 * this.meArtifact.find(i => i.name == '信用卡').num);
