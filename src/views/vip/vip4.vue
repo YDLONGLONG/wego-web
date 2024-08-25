@@ -8,6 +8,7 @@
                     <el-button icon="el-icon-user" @click="meCardDialogVisible = true"></el-button>
                     战斗 {{ bossIndex + 1 }}/30
                     <el-button icon="el-icon-user-solid" @click="bossCardDialogVisible = true"></el-button>
+                    <el-button icon="el-icon-user-solid" @click="bossCardDialogVisible = true"></el-button>
                 </div>
                 <div class="headerText">00:{{ time < 10 ? '0' + time : time }}</div>
             </el-header>
@@ -93,8 +94,8 @@
                                             :percentage="(bossActive.blood > bosss[bossIndex].blood ? 100 : bossActive.blood / bosss[bossIndex].blood * 100)"
                                             :format="formatBossBlood" status="success"></el-progress>
                                         <el-progress :text-inside="true" :stroke-width="22"
-                                            :percentage="bossActive.energy / 10" :format="formatBossPower" status="warning"
-                                            class="progress-bar"></el-progress>
+                                            :percentage="bossActive.energy > 0 ? bossActive.energy / 10 : 0"
+                                            :format="formatBossPower" status="warning" class="progress-bar"></el-progress>
                                     </div>
                                     <img :src="bosss[bossIndex].img" class="boss" />
                                     <div v-for=" damage  in  bossDamages " :key="damage.id" class="damage-popup"
@@ -127,7 +128,7 @@
                                             :percentage="(meActive.blood > meMax.blood ? 100 : meActive.blood / meMax.blood * 100)"
                                             :format="formatMeBlood" status="success"></el-progress>
                                         <el-progress :text-inside="true" :stroke-width="22"
-                                            :percentage="meActive.energy / 10" :format="formatMePower" status="warning"
+                                            :percentage="meActive.energy > 0 ? meActive.energy / 10 : 0" :format="formatMePower" status="warning"
                                             class="progress-bar"></el-progress>
                                     </div>
                                 </div>
@@ -427,6 +428,9 @@ export default {
                     this.money += this.meActive.money;
                     this.addCardEnd();
                 }
+                if (newVal.energy <= 0) {
+                    this.bossActive.energy = 0;
+                }
             },
             deep: true
         },
@@ -460,6 +464,9 @@ export default {
                 }
                 if (newVal.blood <= 0) {
                     this.$message.error('你输了！');
+                }
+                if (newVal.energy <= 0) {
+                    this.meActive.energy = 0;
                 }
             },
             deep: true
@@ -665,13 +672,13 @@ export default {
             };
         },
         formatBossBlood() {
-            return this.bossActive.blood + '/' + this.bosss[this.bossIndex].blood;
+            return Math.floor(this.bossActive.blood) + '/' + this.bosss[this.bossIndex].blood;
         },
         formatBossPower() {
             return this.bossActive.energy + '/1000';
         },
         formatMeBlood() {
-            return this.meActive.blood + '/' + this.meMax.blood;
+            return Math.floor(this.meActive.blood) + '/' + this.meMax.blood;
         },
         formatMePower() {
             return this.meActive.energy + '/1000';
@@ -686,7 +693,7 @@ export default {
                 this.intervalMeAttack = setInterval(() => {
                     this.throwStone('boss');
                     if (this.meCard.some(item => item.name == '硬化石头')) {
-                        this.generateDamage('boss', 'normal', Math.floor(this.meActive.power * 1.3 * this.meCard.find(i => i.name == '硬化石头').num));
+                        this.generateDamage('boss', 'normal', this.meActive.power * 1.3 * this.meCard.find(i => i.name == '硬化石头').num);
                     } else {
                         this.generateDamage('boss', 'normal', this.meActive.power);
                     }
@@ -791,7 +798,7 @@ export default {
                 }
                 this.intervalBossEnergy = setInterval(() => {
                     //boss能量
-                    this.bossActive.energy += 100;
+                    this.bossActive.energy += this.bossActive.energyRecover;
                     if (this.bossActive.energy >= 1000) {
                         this.bossActive.energy = 0;
                         let num = Math.floor(Math.random() * 100);
