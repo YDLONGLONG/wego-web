@@ -4,9 +4,10 @@
             <el-header class="header">
                 <div class="headerText">金币:{{ money }}</div>
                 <div class="headerText">
+                    <el-button icon="el-icon-chat-line-square" @click="meAnserDialogVisible = true"></el-button>
                     <el-button icon="el-icon-user" @click="meCardDialogVisible = true"></el-button>
                     战斗 {{ bossIndex + 1 }}/30
-                    <el-button icon="el-icon-user-solid" @click="meAnserDialogVisible = true"></el-button>
+                    <el-button icon="el-icon-user-solid" @click="bossCardDialogVisible = true"></el-button>
                 </div>
                 <div class="headerText">00:{{ time < 10 ? '0' + time : time }}</div>
             </el-header>
@@ -89,12 +90,11 @@
                                 <div class="character">
                                     <div class="progress">
                                         <el-progress :text-inside="true" :stroke-width="24" class="progress-bar"
-                                            :percentage="(bossActive.blood < bosss[bossIndex].blood ? bossActive.blood / bosss[bossIndex].blood * 100 : 100)
-                                                || (bossActive.blood < 0 ? 0 : bossActive.blood / bosss[bossIndex].blood * 100)"
+                                            :percentage="(bossActive.blood > bosss[bossIndex].blood ? 100 : bossActive.blood / bosss[bossIndex].blood * 100)"
                                             :format="formatBossBlood" status="success"></el-progress>
                                         <el-progress :text-inside="true" :stroke-width="22"
-                                            :percentage="(bossActive.energy > 1000 ? 100 : bossActive.energy / 10) || (bossActive.energy < 0 ? 0 : bossActive.energy / 10)"
-                                            :format="formatBossPower" status="warning" class="progress-bar"></el-progress>
+                                            :percentage="bossActive.energy / 10" :format="formatBossPower" status="warning"
+                                            class="progress-bar"></el-progress>
                                     </div>
                                     <img :src="bosss[bossIndex].img" class="boss" />
                                     <div v-for=" damage  in  bossDamages " :key="damage.id" class="damage-popup"
@@ -124,12 +124,11 @@
                                     </div>
                                     <div class="progress">
                                         <el-progress :text-inside="true" :stroke-width="24" class="progress-bar"
-                                            :percentage="(meActive.blood < meMax.blood ? meActive.blood / meMax.blood * 100 : 100)
-                                                || (meActive.blood < 0 ? 0 : meActive.blood / meMax.blood * 100)"
+                                            :percentage="(meActive.blood > meMax.blood ? 100 : meActive.blood / meMax.blood * 100)"
                                             :format="formatMeBlood" status="success"></el-progress>
                                         <el-progress :text-inside="true" :stroke-width="22"
-                                            :percentage="(meActive.energy > 1000 ? 100 : meActive.energy / 10) || (meActive.energy < 0 ? 0 : meActive.energy / 10)"
-                                            :format="formatMePower" status="warning" class="progress-bar"></el-progress>
+                                            :percentage="meActive.energy / 10" :format="formatMePower" status="warning"
+                                            class="progress-bar"></el-progress>
                                     </div>
                                 </div>
                             </div>
@@ -237,6 +236,18 @@
                 </div>
             </div>
         </el-dialog>
+        <el-dialog title="对手的卡牌" :visible.sync="bossCardDialogVisible" width="80%" center>
+            <div class="dialog-content">
+                <div v-for="( item, index ) in  bossCard " :key="index">
+                    <el-card :style="{ backgroundColor: item.color }" class="card-item">
+                        <div slot="header" style="text-align: center;">
+                            <span>{{ item.name }}X{{ item.num }}</span>
+                        </div>
+                        <div style="text-align: center;">{{ item.info }}</div>
+                    </el-card>
+                </div>
+            </div>
+        </el-dialog>
         <el-dialog title="商店" :visible.sync="shopDialogVisible" width="80%" center :before-close="handleClose">
             <div class="dialog-content">
                 <div v-for="( item, index ) in  shop " :key="index" @click="buy(index)">
@@ -245,7 +256,8 @@
                             <span>{{ item.name }}</span>
                         </div>
                         <div style="text-align: center;">{{ item.info }}</div>
-                        <div style="text-align: center;">{{ item.price }}￥</div>
+                        <div style="text-align: center;">{{ meArtifact.some(item => item.name == '信用卡') ? item.price * 1 /
+                            (2 * meArtifact.find(i => i.name == '信用卡').num) : item.price }}￥</div>
                     </el-card>
                 </div>
             </div>
@@ -350,9 +362,11 @@ export default {
                 }
             ],
             meCard: [],
+            bossCard: [],
             money: 0,
             cardDialogVisible: true,
             meCardDialogVisible: false,
+            bossCardDialogVisible: false,
             meAnserDialogVisible: false,
             meAnser: [],
             shopDialogVisible: false,
@@ -504,12 +518,12 @@ export default {
             }
         },
         meStones(val) {
-            if (val.length >= 50) {
+            if (val.length >= 10) {
                 this.meStones = [];
             }
         },
         bossStones(val) {
-            if (val.length >= 50) {
+            if (val.length >= 10) {
                 this.bossStones = [];
             }
         },
@@ -758,21 +772,23 @@ export default {
                     }, (1000 / (this.meActive.speed / 100)) / this.meAttack.filter((item) => { return item == 5 }).length);
                 }
                 //boss打我
-                this.intervalBossAttack = setInterval(() => {
-                    this.throwStone('me');
-                    this.generateDamage('me', 'normal', this.bossActive.power);
-                    //如果me有反伤
-                    if (this.meActive.reverse > 0) {
-                        if (this.meArtifact.some(item => item.name == '筷子')) {
-                            this.generateDamage('boss', 'reverse', (this.meActive.reverse + this.bossActive.seriousInjury) * (1 + this.meArtifact.find(i => i.name == '筷子').num));
-                        } else {
-                            this.generateDamage('boss', 'reverse', this.meActive.reverse + this.bossActive.seriousInjury);
+                if (this.bossActive.speed !== 0 && this.bossActive.attack.filter((item) => { return item == 1 }).length !== 0) {
+                    this.intervalBossAttack = setInterval(() => {
+                        this.throwStone('me');
+                        this.generateDamage('me', 'normal', this.bossActive.power);
+                        //如果me有反伤
+                        if (this.meActive.reverse > 0) {
+                            if (this.meArtifact.some(item => item.name == '筷子')) {
+                                this.generateDamage('boss', 'reverse', (this.meActive.reverse + this.bossActive.seriousInjury) * (1 + this.meArtifact.find(i => i.name == '筷子').num));
+                            } else {
+                                this.generateDamage('boss', 'reverse', this.meActive.reverse + this.bossActive.seriousInjury);
+                            }
+                            if (this.meCard.some(item => item.name == '复仇')) {
+                                this.totalReverse += (this.meActive.reverse + this.bossActive.seriousInjury) * this.meCard.find(i => i.name == '复仇').num;
+                            }
                         }
-                        if (this.meCard.some(item => item.name == '复仇')) {
-                            this.totalReverse += (this.meActive.reverse + this.bossActive.seriousInjury) * this.meCard.find(i => i.name == '复仇').num;
-                        }
-                    }
-                }, (1000 / (this.bossActive.speed / 100)) / this.bossActive.attack.filter((item) => { return item == 1 }).length);
+                    }, (1000 / (this.bossActive.speed / 100)) / this.bossActive.attack.filter((item) => { return item == 1 }).length);
+                }
                 this.intervalBossEnergy = setInterval(() => {
                     //boss能量
                     this.bossActive.energy += 100;
