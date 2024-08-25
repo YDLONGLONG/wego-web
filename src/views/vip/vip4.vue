@@ -912,10 +912,10 @@ export default {
                 this.meMax.power += 1 * this.meCard.find(i => i.name == '加油').num;
             }
             if (this.meCard.some(item => item.name === '任务:反伤')) {
-                this.meMax.reverse += 1 * this.meCard.find(i => i.name == '任务:反伤').num;
+                this.meActive.reverse += 1 * this.meCard.find(i => i.name == '任务:反伤').num;
             }
             if (this.meCard.some(item => item.name === '怒气积攒')) {
-                this.meMax.critical += 1 * this.meCard.find(i => i.name == '怒气积攒').num;
+                this.meActive.critical += 1 * this.meCard.find(i => i.name == '怒气积攒').num;
             }
             if (this.meCard.some(item => item.name === '打坐')) {
                 this.meMax.recover += 5 * this.meCard.find(i => i.name == '打坐').num;
