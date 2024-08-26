@@ -128,8 +128,8 @@
                                             :percentage="(meActive.blood > meMax.blood ? 100 : meActive.blood / meMax.blood * 100)"
                                             :format="formatMeBlood" status="success"></el-progress>
                                         <el-progress :text-inside="true" :stroke-width="22"
-                                            :percentage="meActive.energy > 0 ? meActive.energy / 10 : 0" :format="formatMePower" status="warning"
-                                            class="progress-bar"></el-progress>
+                                            :percentage="meActive.energy > 0 ? meActive.energy / 10 : 0"
+                                            :format="formatMePower" status="warning" class="progress-bar"></el-progress>
                                     </div>
                                 </div>
                             </div>
@@ -221,7 +221,7 @@
                 </div>
             </div>
             <div style="text-align: center;margin-top: 10%;">
-                <el-button @click="drawCard">刷新</el-button>
+                <el-button @click="drawCard(10)">刷新(10金币)</el-button>
                 <el-button icon="el-icon-user" @click="meCardDialogVisible = true"></el-button>
             </div>
         </el-dialog>
@@ -273,9 +273,9 @@
                         <span>{{ question.name }}</span>
                     </div>
                     <div class="optionsFlex">
-                        <el-button size="mini" @click="anser(question.name, question.a)">{{ question.a }}</el-button>
-                        <el-button size="mini" @click="anser(question.name, question.b)">{{ question.b }}</el-button>
-                        <el-button size="mini" @click="anser(question.name, question.c)" v-show="question.c">{{ question.c
+                        <el-button @click="anser(question.name, question.a)">{{ question.a }}</el-button>
+                        <el-button @click="anser(question.name, question.b)">{{ question.b }}</el-button>
+                        <el-button @click="anser(question.name, question.c)" v-show="question.c">{{ question.c
                         }}</el-button>
                     </div>
                 </el-card>
@@ -336,7 +336,8 @@ export default {
             meMax: {
                 blood: 1650,
                 power: 30,
-                recover: 0
+                recover: 0,
+                reverse: 0
             },
             meActive: {
                 blood: 1650,
@@ -408,7 +409,6 @@ export default {
             if (val == false) {
                 this.addCardBegin();
                 this.attack();
-                this.meActive.recover = this.meMax.recover;
             }
         },
         bossActive: {
@@ -424,6 +424,8 @@ export default {
                     this.cardDialogVisible = true;
                     this.meActive.blood = this.meMax.blood;
                     this.meActive.power = this.meMax.power;
+                    this.meActive.recover = this.meMax.recover;
+                    this.meActive.reverse = this.meMax.reverse;
                     this.meActive.energy = 0;
                     this.money += this.meActive.money;
                     this.addCardEnd();
@@ -868,12 +870,12 @@ export default {
             } else if (power.name == "金币") {
                 this.money += 400;
             } else if (power.name == "尖刺") {
-                this.meActive.reverse += 6;
+                this.meMax.reverse += 6;
             } else if (power.name == "收入提升") {
                 this.meActive.money += 10;
             } else if (power.name == "带刺护甲") {
                 this.meActive.defense += 3;
-                this.meActive.reverse += 4;
+                this.meMax.reverse += 4;
             } else if (power.name == "速度提升") {
                 this.meActive.speed += 10;
             } else if (power.name == "暴击伤害提升") {
@@ -885,7 +887,13 @@ export default {
             }
         },
         //抽牌
-        drawCard() {
+        drawCard(num) {
+            if (num) {
+                if (this.money < num) {
+                    return this.$message.warning('金币不足');
+                }
+                this.money -= num;
+            }
             this.card3 = [];
             for (let i = 0; i < 3; i++) {
                 let num = Math.random();
@@ -919,7 +927,7 @@ export default {
                 this.meMax.power += 1 * this.meCard.find(i => i.name == '加油').num;
             }
             if (this.meCard.some(item => item.name === '任务:反伤')) {
-                this.meActive.reverse += 1 * this.meCard.find(i => i.name == '任务:反伤').num;
+                this.meMax.reverse += 1 * this.meCard.find(i => i.name == '任务:反伤').num;
             }
             if (this.meCard.some(item => item.name === '怒气积攒')) {
                 this.meActive.critical += 1 * this.meCard.find(i => i.name == '怒气积攒').num;
@@ -1002,7 +1010,7 @@ export default {
                 } else if (this.shop[index].name == '筷子') {
                     this.meActive.seriousInjury += 3;
                 } else if (this.shop[index].name == '仙人掌') {
-                    this.meActive.reverse += 10;
+                    this.meMax.reverse += 10;
                 } else if (this.shop[index].name == '信用卡') {
                     this.meActive.money -= 25;
                     this.meActive.money < 0 ? this.meActive.money = 0 : '';
