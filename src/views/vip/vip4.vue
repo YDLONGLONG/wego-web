@@ -264,6 +264,7 @@
             </div>
             <div style="text-align: center;margin-top: 10%;">
                 <el-button @click="shopDialogVisible = false">继续</el-button>
+                <el-button icon="el-icon-user" @click="meCardDialogVisible = true"></el-button>
             </div>
         </el-dialog>
         <el-dialog title="提问" :visible.sync="questionDialogVisible" width="50%" center :before-close="handleClose">
@@ -329,6 +330,10 @@ export default {
             intervalMe3: null,
             intervalMe4: null,
             intervalMe5: null,
+            intervalBoss2: null,
+            intervalBoss3: null,
+            intervalBoss4: null,
+            intervalBoss5: null,
             intervalTime: null,
             bossIndex: 0,
             bossActive: {},
@@ -730,7 +735,7 @@ export default {
                         this.generateDamage('me', 'heal', this.meActive.power * this.meCard.find(i => i.name == '自我治疗').num);
                     }
                 }, 1000);
-                //肌肉
+                //我的肌肉
                 if (this.meAttack.includes(2)) {
                     this.intervalMe2 = setInterval(() => {
                         this.meActive.power += 1;
@@ -739,7 +744,7 @@ export default {
                         }
                     }, (1000 / (this.meActive.speed / 100)) / this.meAttack.filter((item) => { return item == 2 }).length);
                 }
-                //脑子
+                //我的脑子
                 if (this.meAttack.includes(3)) {
                     this.intervalMe3 = setInterval(() => {
                         if (this.meCard.some(item => item.name == '学习')) {
@@ -752,7 +757,7 @@ export default {
                         }
                     }, (1000 / (this.meActive.speed / 100)) / this.meAttack.filter((item) => { return item == 3 }).length);
                 }
-                //斧子
+                //我的斧子
                 if (this.meAttack.includes(4)) {
                     this.intervalMe4 = setInterval(() => {
                         let num = 40;
@@ -766,7 +771,7 @@ export default {
                         }
                     }, (1000 / (this.meActive.speed / 100)) / this.meAttack.filter((item) => { return item == 4 }).length);
                 }
-                //吸血鬼
+                //我的吸血鬼
                 if (this.meAttack.includes(5)) {
                     this.intervalMe5 = setInterval(() => {
                         if (this.meCard.some(item => item.name == '我是真饿了')) {
@@ -813,6 +818,56 @@ export default {
                     //boss恢复血量
                     this.bossActive.recover > 0 ? this.generateDamage('boss', 'heal', this.bossActive.recover) : '';
                 }, 1000);
+                //boss肌肉
+                if (this.bossActive.attack.includes(2)) {
+                    this.intervalBoss2 = setInterval(() => {
+                        this.meActive.power += 1;
+                        if (this.meCard.some(item => item.name == '野兽心态')) {
+                            this.meActive.speed += 1 * this.meCard.find(i => i.name == '野兽心态').num;
+                        }
+                    }, (1000 / (this.meActive.speed / 100)) / this.bossActive.attack.filter((item) => { return item == 2 }).length);
+                }
+                //boss脑子
+                if (this.bossActive.attack.includes(3)) {
+                    this.intervalBoss3 = setInterval(() => {
+                        if (this.bossCard.some(item => item.name == '学习')) {
+                            this.meActive.energy -= 20 + 10 * this.bossCard.find(i => i.name == '学习').num;
+                        } else {
+                            this.meActive.energy -= 20;
+                        }
+                        if (this.bossCard.some(item => item.name == '经济学家')) {
+                            this.generateDamage('me', 'normal', this.bossActive.money * this.bossCard.find(i => i.name == '经济学家').num);
+                        }
+                    }, (1000 / (this.bossActive.speed / 100)) / this.bossActive.attack.filter((item) => { return item == 3 }).length);
+                }
+                //boss斧子
+                if (this.bossActive.attack.includes(4)) {
+                    this.intervalBoss4 = setInterval(() => {
+                        let num = 40;
+                        if (this.bossArtifact.some(item => item.name == '法棍')) {
+                            num = 40 + 10 * this.bossArtifact.find(i => i.name == '法棍').num;
+                        }
+                        if (this.bossCard.some(item => item.name == '硬斧')) {
+                            this.generateDamage('me', 'normal', num * (1 + this.bossCard.find(i => i.name == '硬斧').num));
+                        } else {
+                            this.generateDamage('me', 'normal', num);
+                        }
+                    }, (1000 / (this.bossActive.speed / 100)) / this.bossActive.attack.filter((item) => { return item == 4 }).length);
+                }
+                //boss吸血鬼
+                if (this.bossActive.attack.includes(5)) {
+                    this.intervalBoss5 = setInterval(() => {
+                        if (this.bossCard.some(item => item.name == '我是真饿了')) {
+                            this.generateDamage('me', 'normal', 3);
+                            this.generateDamage('boss', 'heal', 3 * this.bossCard.find(i => i.name == '我是真饿了').num);
+                            this.bosss1[index].blood += 3 * this.bossCard.find(i => i.name == '我是真饿了').num;
+                        } else {
+                            this.generateDamage('me', 'normal', 3);
+                            this.generateDamage('boss', 'heal', 3);
+                            this.bosss1[index].blood += 3;
+                        }
+                    }, (1000 / (this.bossActive.speed / 100)) / this.bossActive.attack.filter((item) => { return item == 5 }).length);
+                }
             }, 1000);
         },
         clearSetInerval() {
@@ -882,7 +937,7 @@ export default {
                 this.meActive.criticalDamage += 60;
             } else if (power.name == "大招伤害") {
                 this.meActive.big += this.meActive.big * 0.3;
-            } else if (this.meCard.some(item => item.name == '能量恢复')) {
+            } else if (power.name == '能量恢复') {
                 this.meActive.energyRecover += 40;
             }
         },
