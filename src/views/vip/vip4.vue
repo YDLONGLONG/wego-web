@@ -695,7 +695,7 @@ export default {
                 this.intervalMeAttack = setInterval(() => {
                     this.throwStone('boss');
                     if (this.meCard.some(item => item.name == '硬化石头')) {
-                        this.generateDamage('boss', 'normal', this.meActive.power * 1.3 * this.meCard.find(i => i.name == '硬化石头').num);
+                        this.generateDamage('boss', 'normal', Math.floor(this.meActive.power * 1.3 * this.meCard.find(i => i.name == '硬化石头').num));
                     } else {
                         this.generateDamage('boss', 'normal', this.meActive.power);
                     }
