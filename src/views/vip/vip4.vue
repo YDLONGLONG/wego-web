@@ -341,8 +341,7 @@ export default {
             meMax: {
                 blood: 1650,
                 power: 30,
-                recover: 0,
-                reverse: 0
+                speed: 100,
             },
             meActive: {
                 blood: 1650,
@@ -364,7 +363,7 @@ export default {
             meArtifact: [
                 {
                     name: '曲奇',
-                    info: '获得5力量和100生命值',
+                    info: '获得10力量和50生命值',
                     num: 3
                 }
             ],
@@ -387,6 +386,8 @@ export default {
             totalReverse: 0,
             totalMoney: 0,
             totalRecover: 0,
+            totalReverseBoss: 0,
+            totalRecoverBoss: 0,
         }
     },
     created() {
@@ -402,16 +403,26 @@ export default {
         quotientReverse() {
             return Math.floor(this.totalReverse / 30);
         },
+        quotientReverseBoss() {
+            return Math.floor(this.totalReverseBoss / 30);
+        },
         quotientMoney() {
-            return Math.floor(this.totalReverse / 30);
+            return Math.floor(this.totalMoney / 30);
         },
         quotientRecover() {
             return Math.floor(this.totalRecover / 120);
+        },
+        quotientRecoverBoss() {
+            return Math.floor(this.totalRecoverBoss / 120);
         }
     },
     watch: {
         cardDialogVisible(val) {
             if (val == false) {
+                this.meActive.blood = this.meMax.blood;
+                this.meActive.power = this.meMax.power;
+                this.meActive.speed = this.meMax.speed;
+                this.meActive.energy = 0;
                 this.addCardBegin();
                 this.attack();
             }
@@ -425,15 +436,10 @@ export default {
                     }
                     this.bossActive = JSON.parse(JSON.stringify(this.bosss[this.bossIndex]));
                     this.drawCard();
+                    this.addCardEnd();
                     this.meCardDialogVisible = false;
                     this.cardDialogVisible = true;
-                    this.meActive.blood = this.meMax.blood;
-                    this.meActive.power = this.meMax.power;
-                    this.meActive.recover = this.meMax.recover;
-                    this.meActive.reverse = this.meMax.reverse;
-                    this.meActive.energy = 0;
                     this.money += this.meActive.money;
-                    this.addCardEnd();
                 }
                 if (newVal.energy <= 0) {
                     this.bossActive.energy = 0;
@@ -553,10 +559,23 @@ export default {
                 }
             }
         },
+        quotientReverseBoss(val) {
+            if (val) {
+                if (this.bossCard.some(item => item.name == '硬斧')) {
+                    this.generateDamage('me', 'normal', 40 * this.bossCard.find(i => i.name == '硬斧').num);
+                } else {
+                    this.generateDamage('me', 'normal', 40);
+                }
+                if (this.bossArtifact.some(item => item.name == '大蒜')) {
+                    this.generateDamage('boss', 'heal', 30 * this.bossArtifact.find(i => i.name == '大蒜').num);
+                }
+            }
+        },
         quotientMoney(val) {
             if (val) {
                 if (this.meCard.some(item => item.name == '贪婪')) {
                     this.meMax.power += 1 * this.meCard.find(i => i.name == '贪婪').num;
+                    this.meActive.power = this.meMax.power;
                 }
             }
         },
@@ -564,6 +583,7 @@ export default {
             if (val) {
                 if (this.meCard.some(item => item.name == '肌肉记忆')) {
                     this.meMax.power += 1 * this.meCard.find(i => i.name == '肌肉记忆').num;
+                    this.meActive.power = this.meMax.power;
                 }
                 if (this.meArtifact.some(item => item.name == '勇敢的心')) {
                     let num = 40;
@@ -578,6 +598,24 @@ export default {
                 }
             }
         },
+        quotientRecoverBoss(val) {
+            if (val) {
+                if (this.bossCard.some(item => item.name == '肌肉记忆')) {
+                    this.bosss[this.bossIndex].power += 1 * this.bossCard.find(i => i.name == '肌肉记忆').num;
+                }
+                if (this.bossArtifact.some(item => item.name == '勇敢的心')) {
+                    let num = 40;
+                    if (this.bossArtifact.some(item => item.name == '法棍')) {
+                        num = 40 + 10 * this.bossArtifact.find(i => i.name == '法棍').num;
+                    }
+                    if (this.bossCard.some(item => item.name == '硬斧')) {
+                        this.generateDamage('me', 'normal', num * this.bossCard.find(i => i.name == '硬斧').num * this.bossArtifact.find(i => i.name == '勇敢的心').num);
+                    } else {
+                        this.generateDamage('me', 'normal', num * this.bossArtifact.find(i => i.name == '勇敢的心').num);
+                    }
+                }
+            }
+        },
     },
     methods: {
         generateDamage(to, damageType, damageValue) {
@@ -587,11 +625,12 @@ export default {
                 if (damageType == 'heal') {
                     this.bossDamages.push({
                         id: damageId,
-                        value: this.bossActive.recover,
+                        value: damageValue,
                         type: damageType,
                         style: damagePosition,
                     });
-                    this.bossActive.blood += this.bossActive.recover;
+                    this.bossActive.blood += damageValue;
+                    this.totalRecoverBoss += damageValue;
                     if (this.bossActive.blood > this.bosss[this.bossIndex].blood) {
                         this.bossActive.blood = this.bosss[this.bossIndex].blood;
                     }
@@ -628,6 +667,7 @@ export default {
                         style: damagePosition,
                     });
                     this.meActive.blood += damageValue;
+                    this.totalRecover += damageValue;
                     if (this.meActive.blood > this.meMax.blood) {
                         this.meActive.blood = this.meMax.blood;
                     }
@@ -700,32 +740,44 @@ export default {
                 this.intervalMeAttack = setInterval(() => {
                     this.throwStone('boss');
                     if (this.meCard.some(item => item.name == '硬化石头')) {
-                        this.generateDamage('boss', 'normal', Math.floor(this.meActive.power * 1.3 * this.meCard.find(i => i.name == '硬化石头').num));
+                        this.generateDamage('boss', 'normal', Math.floor(this.meActive.power * (1 + 0.3 * this.meCard.find(i => i.name == '硬化石头').num)));
                     } else {
                         this.generateDamage('boss', 'normal', this.meActive.power);
                     }
                     //如果boss有反伤
                     if (this.bossActive.reverse > 0) {
-                        this.generateDamage('me', 'reverse', this.bossActive.reverse + this.meActive.seriousInjury);
+                        if (this.bossArtifact.some(item => item.name == '筷子')) {
+                            this.generateDamage('me', 'reverse', (this.bossActive.reverse + this.meActive.seriousInjury) * (1 + this.bossArtifact.find(i => i.name == '筷子').num));
+                        } else {
+                            this.generateDamage('me', 'reverse', this.bossActive.reverse + this.meActive.seriousInjury);
+                        }
+                        if (this.bossCard.some(item => item.name == '复仇')) {
+                            this.totalReverse += (this.bossActive.reverse + this.meActive.seriousInjury) * this.bossCard.find(i => i.name == '复仇').num;
+                        }
                     }
                 }, (1000 / (this.meActive.speed / 100)) / this.meAttack.filter((item) => { return item == 1 }).length);
                 this.intervalMeEnergy = setInterval(() => {
                     //我的能量
                     this.meActive.energy += this.meActive.energyRecover;
                     if (this.meActive.energy >= 1000) {
-                        if (this.meArtifact.some(item => item.name == '小刀')) {
-                            let num = Math.floor(Math.random() * 100);
-                            if (num < this.meActive.critical) {
-                                this.generateDamage('boss', 'normal', (this.meActive.big + this.meActive.power) * (this.meActive.criticalDamage / 100));
-                            }
+                        let num = Math.floor(Math.random() * 100);
+                        if (this.bossArtifact.some(item => item.name === '钝角') && num < this.bossActive.dodge) {
+                            this.$message.warning('对手闪避你的大招!');
                         } else {
-                            this.generateDamage('boss', 'normal', this.meActive.big + this.meActive.power);
-                        }
-                        if (this.meCard.some(item => item.name == '松口气')) {
-                            this.generateDamage('me', 'heal', 250 * this.meCard.find(i => i.name == '松口气').num);
-                        }
-                        if (this.meCard.some(item => item.name == '蓄能大招')) {
-                            this.meActive.energy += 190 * this.meCard.find(i => i.name == '蓄能大招').num;
+                            if (this.meArtifact.some(item => item.name == '小刀')) {
+                                num = Math.floor(Math.random() * 100);
+                                if (num < this.meActive.critical) {
+                                    this.generateDamage('boss', 'normal', (this.meActive.big + this.meActive.power) * (this.meActive.criticalDamage / 100));
+                                }
+                            } else {
+                                this.generateDamage('boss', 'normal', this.meActive.big + this.meActive.power);
+                            }
+                            if (this.meCard.some(item => item.name == '松口气')) {
+                                this.generateDamage('me', 'heal', 250 * this.meCard.find(i => i.name == '松口气').num);
+                            }
+                            if (this.meCard.some(item => item.name == '蓄能大招')) {
+                                this.meActive.energy += 190 * this.meCard.find(i => i.name == '蓄能大招').num;
+                            }
                         }
                         this.meActive.energy = 0;
                     }
@@ -786,23 +838,25 @@ export default {
                     }, (1000 / (this.meActive.speed / 100)) / this.meAttack.filter((item) => { return item == 5 }).length);
                 }
                 //boss打我
-                if (this.bossActive.speed !== 0 && this.bossActive.attack.filter((item) => { return item == 1 }).length !== 0) {
-                    this.intervalBossAttack = setInterval(() => {
-                        this.throwStone('me');
+                this.intervalBossAttack = setInterval(() => {
+                    this.throwStone('me');
+                    if (this.bossCard.some(item => item.name == '硬化石头')) {
+                        this.generateDamage('me', 'normal', Math.floor(this.bossActive.power * (1 + 0.3 * this.bossCard.find(i => i.name == '硬化石头').num)));
+                    } else {
                         this.generateDamage('me', 'normal', this.bossActive.power);
-                        //如果me有反伤
-                        if (this.meActive.reverse > 0) {
-                            if (this.meArtifact.some(item => item.name == '筷子')) {
-                                this.generateDamage('boss', 'reverse', (this.meActive.reverse + this.bossActive.seriousInjury) * (1 + this.meArtifact.find(i => i.name == '筷子').num));
-                            } else {
-                                this.generateDamage('boss', 'reverse', this.meActive.reverse + this.bossActive.seriousInjury);
-                            }
-                            if (this.meCard.some(item => item.name == '复仇')) {
-                                this.totalReverse += (this.meActive.reverse + this.bossActive.seriousInjury) * this.meCard.find(i => i.name == '复仇').num;
-                            }
+                    }
+                    //如果me有反伤
+                    if (this.meActive.reverse > 0) {
+                        if (this.meArtifact.some(item => item.name == '筷子')) {
+                            this.generateDamage('boss', 'reverse', (this.meActive.reverse + this.bossActive.seriousInjury) * (1 + this.meArtifact.find(i => i.name == '筷子').num));
+                        } else {
+                            this.generateDamage('boss', 'reverse', this.meActive.reverse + this.bossActive.seriousInjury);
                         }
-                    }, (1000 / (this.bossActive.speed / 100)) / this.bossActive.attack.filter((item) => { return item == 1 }).length);
-                }
+                        if (this.meCard.some(item => item.name == '复仇')) {
+                            this.totalReverse += (this.meActive.reverse + this.bossActive.seriousInjury) * this.meCard.find(i => i.name == '复仇').num;
+                        }
+                    }
+                }, (1000 / (this.bossActive.speed / 100)) / this.bossActive.attack.filter((item) => { return item == 1 }).length);
                 this.intervalBossEnergy = setInterval(() => {
                     //boss能量
                     this.bossActive.energy += this.bossActive.energyRecover;
@@ -812,11 +866,27 @@ export default {
                         if (this.meArtifact.some(item => item.name === '钝角') && num < this.meActive.dodge) {
                             this.$message.warning('闪避boss的大招!');
                         } else {
-                            this.generateDamage('me', 'normal', this.bossActive.big + this.bossActive.power);
+                            if (this.bossArtifact.some(item => item.name == '小刀')) {
+                                num = Math.floor(Math.random() * 100);
+                                if (num < this.bossActive.critical) {
+                                    this.generateDamage('me', 'normal', (this.bossActive.big + this.bossActive.power) * (this.bossActive.criticalDamage / 100));
+                                }
+                            } else {
+                                this.generateDamage('me', 'normal', this.bossActive.big + this.bossActive.power);
+                            }
+                            if (this.bossCard.some(item => item.name == '松口气')) {
+                                this.generateDamage('boss', 'heal', 250 * this.bossCard.find(i => i.name == '松口气').num);
+                            }
+                            if (this.bossCard.some(item => item.name == '蓄能大招')) {
+                                this.bossActive.energy += 190 * this.bossCard.find(i => i.name == '蓄能大招').num;
+                            }
                         }
                     }
                     //boss恢复血量
                     this.bossActive.recover > 0 ? this.generateDamage('boss', 'heal', this.bossActive.recover) : '';
+                    if (this.bossCard.some(item => item.name == '自我治疗')) {
+                        this.generateDamage('boss', 'heal', this.bossActive.power * this.bossCard.find(i => i.name == '自我治疗').num);
+                    }
                 }, 1000);
                 //boss肌肉
                 if (this.bossActive.attack.includes(2)) {
@@ -905,9 +975,9 @@ export default {
             if (power.name == "篮球") {
                 this.meAttack.push(1)
             } else if (power.name == "力量") {
-                this.meActive.power += 5;
+                this.meMax.power += 5;
             } else if (power.name == "回血") {
-                this.meMax.recover += 25;
+                this.meActive.recover += 25;
             } else if (power.name == "肌肉") {
                 this.meAttack.push(2);
             } else if (power.name == "橄榄球") {
@@ -921,18 +991,18 @@ export default {
             } else if (power.name == "暴击") {
                 this.meActive.critical += 5;
             } else if (power.name == "硬汉") {
-                this.meMax.recover += this.meMax.blood * 0.02;
+                this.meActive.recover += this.meMax.blood * 0.02;
             } else if (power.name == "金币") {
                 this.money += 400;
             } else if (power.name == "尖刺") {
-                this.meMax.reverse += 6;
+                this.meActive.reverse += 6;
             } else if (power.name == "收入提升") {
                 this.meActive.money += 10;
             } else if (power.name == "带刺护甲") {
                 this.meActive.defense += 3;
-                this.meMax.reverse += 4;
+                this.meActive.reverse += 4;
             } else if (power.name == "速度提升") {
-                this.meActive.speed += 10;
+                this.meMax.speed += 10;
             } else if (power.name == "暴击伤害提升") {
                 this.meActive.criticalDamage += 60;
             } else if (power.name == "大招伤害") {
@@ -975,6 +1045,9 @@ export default {
             if (this.meCard.some(item => item.name === '有氧运动')) {
                 this.meActive.blood += this.meMax.power * 12 * this.meCard.find(i => i.name == '有氧运动').num;
             }
+            if (this.bossCard.some(item => item.name === '有氧运动')) {
+                this.bossActive.blood += this.bosss[this.bossIndex].power * 12 * this.bossCard.find(i => i.name == '有氧运动').num;
+            }
         },
         //加入回合类强化(结束触发)
         addCardEnd() {
@@ -991,7 +1064,7 @@ export default {
                 this.meMax.recover += 5 * this.meCard.find(i => i.name == '打坐').num;
             }
             if (this.meArtifact.some(item => item.name === '终点线')) {
-                this.meActive.speed += 3 * this.meArtifact.find(i => i.name == '终点线').num;
+                this.meMax.speed += 3 * this.meArtifact.find(i => i.name == '终点线').num;
             }
             if (this.meArtifact.some(item => item.name === '鱿鱼')) {
                 this.meActive.money += 4 * this.meArtifact.find(i => i.name == '鱿鱼').num;
@@ -1019,7 +1092,6 @@ export default {
                 }
                 if (this.shop[index].name == '龙心') {
                     this.meMax.blood += 250;
-                    this.meActive.blood = this.meMax.blood;
                     this.meMax.power += 5;
                     this.meActive.recover += this.meMax.blood * 0.1;
                 } else if (this.shop[index].name == '饭团') {
@@ -1029,11 +1101,9 @@ export default {
                     this.meActive.money += 25;
                 } else if (this.shop[index].name == '快餐') {
                     this.meMax.blood += 700;
-                    this.meActive.blood = this.meMax.blood;
                     this.meActive.seriousInjury += 3;
                 } else if (this.shop[index].name == '马') {
                     this.meMax.blood += 200;
-                    this.meActive.blood = this.meMax.blood;
                     this.meAttack.push(2);
                 } else if (this.shop[index].name == '苹果') {
                     this.meActive.defense += 8;
@@ -1056,12 +1126,12 @@ export default {
                 } else if (this.shop[index].name == '笑脸') {
                     this.meActive.critical += 4;
                     this.meActive.dodge += 4;
-                    this.meActive.speed += 4;
+                    this.meMax.speed += 4;
                     this.meMax.power += 4;
                 } else if (this.shop[index].name == '西兰花') {
                     this.meActive.seriousInjury -= 6;
                 } else if (this.shop[index].name == '红辣椒') {
-                    this.meActive.speed += 25;
+                    this.meMax.speed += 25;
                 } else if (this.shop[index].name == '筷子') {
                     this.meActive.seriousInjury += 3;
                 } else if (this.shop[index].name == '仙人掌') {
@@ -1096,11 +1166,9 @@ export default {
             this.questionDialogVisible = false;
             if (a == '篮球(获得篮球+1和200血量)') {
                 this.meMax.blood += 200;
-                this.meActive.blood = this.meMax.blood;
                 this.meAttack.push(1);
             } else if (a == '橄榄球(获得橄榄球+1和200血量)') {
                 this.meMax.blood += 200;
-                this.meActive.blood = this.meMax.blood;
                 this.meAttack.push(3);
             } else if (a == '1(获得5%暴击)') {
                 this.meActive.critical += 5;
@@ -1108,7 +1176,6 @@ export default {
                 this.meActive.dodge += 5;
             } else if (a == '三明治的馅儿(获得700血量和3重伤)') {
                 this.meMax.blood += 700;
-                this.meActive.blood = this.meMax.blood;
                 this.meActive.seriousInjury += 3;
             }
         },
