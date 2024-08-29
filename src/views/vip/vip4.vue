@@ -381,6 +381,7 @@ export default {
             bossDialogVisible: false,
             time: 0,
             isLessHalf: false,
+            isLessHalfBoss: false,
             meStones: [],
             bossStones: [],
             totalReverse: 0,
@@ -429,6 +430,32 @@ export default {
         },
         bossActive: {
             handler(newVal, oldVal) {
+                let lv = 2;
+                if (this.bossArtifact.some(item => item.name == '警笛')) {
+                    lv = (100 / ((50 + 15) * this.bossArtifact.find(i => i.name == '警笛').num));
+                    lv < 1 ? lv = 1 : '';
+                }
+                let num = 1;
+                if (this.bossArtifact.some(item => item.name == '口罩')) {
+                    num = 1 * this.bossArtifact.find(i => i.name == '口罩').num;
+                }
+                if (newVal.blood <= this.bosss[this.bossIndex].blood / lv) {
+                    if (this.bossCard.some(item => item.name == '紧急治疗') && this.isLessHalfBoss == false) {
+                        this.bossActive.recover += 50 * num * this.bossCard.find(i => i.name == '紧急治疗').num;
+                    }
+                    if (this.bossCard.some(item => item.name == '紧急反伤') && this.isLessHalfBoss == false) {
+                        this.bossActive.reverse += 15 * num * this.bossCard.find(i => i.name == '紧急反伤').num;
+                    }
+                    this.isLessHalfBoss = true;
+                } else if (newVal.blood > this.bosss[this.bossIndex].blood / lv) {
+                    if (this.bossCard.some(item => item.name == '紧急治疗') && this.isLessHalfBoss == true && this.time !== 0) {
+                        this.bossActive.recover -= 50 * num * this.bossCard.find(i => i.name == '紧急治疗').num;
+                    }
+                    if (this.bossCard.some(item => item.name == '紧急反伤') && this.isLessHalfBoss == true && this.time !== 0) {
+                        this.bossActive.reverse -= 15 * num * this.bossCard.find(i => i.name == '紧急反伤').num;
+                    }
+                    this.isLessHalfBoss = false;
+                }
                 if (newVal.blood <= 0) {
                     this.bossIndex++;
                     if (this.bossIndex >= this.bosss.length) {
@@ -496,6 +523,7 @@ export default {
             }
         },
         time(val) {
+            //我的强化
             let num = 1;
             if (this.meCard.some(item => item.name == '冲锋强化')) {
                 num = 1 * this.meCard.find(i => i.name == '冲锋强化').num;
@@ -536,6 +564,47 @@ export default {
                     this.meActive.energy += 300 * this.meCard.find(i => i.name == '战前充电').num;
                 }
             }
+            //boss强化
+            let num1 = 1;
+            if (this.bossCard.some(item => item.name == '冲锋强化')) {
+                num1 = 1 * this.bossCard.find(i => i.name == '冲锋强化').num;
+            }
+            let time1 = 4;
+            if (this.bossCard.some(item => item.name == '超长待机')) {
+                time1 = 4 + 2 * this.bossCard.find(i => i.name == '超长待机').num;
+            }
+            if (this.bossCard.some(item => item.name == '战前治疗') && val == 1) {
+                this.bossActive.recover += 80 * num1 * this.bossCard.find(i => i.name == '战前治疗').num;
+            } else if (this.bossCard.some(item => item.name == '战前治疗') && val == time1) {
+                this.bossActive.recover -= 80 * num1 * this.bossCard.find(i => i.name == '战前治疗').num;
+            }
+            if (this.bossCard.some(item => item.name == '急速开局') && val == 1) {
+                this.bossActive.speed += 20 * num1 * this.bossCard.find(i => i.name == '急速开局').num;
+            } else if (this.bossCard.some(item => item.name == '急速开局') && val == time1) {
+                this.bossActive.speed -= 20 * num1 * this.bossCard.find(i => i.name == '急速开局').num;
+            }
+            if (this.bossArtifact.some(item => item.name == '寿司') && val == 7) {
+                this.bossActive.blood += 1000 * this.bossArtifact.find(i => i.name == '寿司').num;
+            }
+            if (val == 1) {
+                if (this.bossCard.some(item => item.name == '扇巴掌')) {
+                    this.generateDamage('me', 'normal', this.meActive.blood * 0.1 * this.bossCard.find(i => i.name == '扇巴掌').num);
+                }
+                if (this.bossCard.some(item => item.name == '弱化')) {
+                    this.meActive.seriousInjury += 3 * this.bossCard.find(i => i.name == '弱化').num;
+                }
+                if (this.bossCard.some(item => item.name == '战前充电')) {
+                    this.bossActive.energy += 300 * this.bossCard.find(i => i.name == '战前充电').num;
+                }
+            }
+            if (val % 6 == 0 && this.bossArtifact.some(item => item.name == '咖啡')) {
+                if (this.bossCard.some(item => item.name == '扇巴掌')) {
+                    this.generateDamage('me', 'normal', this.meActive.blood * 0.1 * this.bossCard.find(i => i.name == '扇巴掌').num);
+                }
+                if (this.bossCard.some(item => item.name == '战前充电')) {
+                    this.bossActive.energy += 300 * this.bossCard.find(i => i.name == '战前充电').num;
+                }
+            }
         },
         meStones(val) {
             if (val.length >= 10) {
@@ -549,6 +618,10 @@ export default {
         },
         quotientReverse(val) {
             if (val) {
+                let num = 40;
+                if (this.meArtifact.some(item => item.name == '法棍')) {
+                    num = 40 + 10 * this.meArtifact.find(i => i.name == '法棍').num;
+                }
                 if (this.meCard.some(item => item.name == '硬斧')) {
                     this.generateDamage('boss', 'normal', 40 * this.meCard.find(i => i.name == '硬斧').num);
                 } else {
@@ -561,6 +634,10 @@ export default {
         },
         quotientReverseBoss(val) {
             if (val) {
+                let num = 40;
+                if (this.bossArtifact.some(item => item.name == '法棍')) {
+                    num = 40 + 10 * this.bossArtifact.find(i => i.name == '法棍').num;
+                }
                 if (this.bossCard.some(item => item.name == '硬斧')) {
                     this.generateDamage('me', 'normal', 40 * this.bossCard.find(i => i.name == '硬斧').num);
                 } else {
