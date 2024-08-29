@@ -713,9 +713,11 @@ export default {
                     }
                 } else {
                     let num = Math.floor(Math.random() * 100);
-                    if (num < this.meActive.critical) {
-                        damageValue = damageValue * (this.meActive.criticalDamage / 100);
-                        damageType = 'critical';
+                    if (damageType !== "critical") {
+                        if (num < this.meActive.critical) {
+                            damageValue = damageValue * (this.meActive.criticalDamage / 100);
+                            damageType = 'critical';
+                        }
                     }
                     let damage = damageValue - this.bossActive.defense + this.bossActive.seriousInjury;
                     num = Math.floor(Math.random() * 100);
@@ -750,9 +752,11 @@ export default {
                     }
                 } else {
                     let num = Math.floor(Math.random() * 100);
-                    if (num < this.bossActive.critical) {
-                        damageValue = damageValue * (this.bossActive.criticalDamage / 100);
-                        damageType = 'critical';
+                    if (damageType !== "critical") {
+                        if (num < this.bossActive.critical) {
+                            damageValue = damageValue * (this.bossActive.criticalDamage / 100);
+                            damageType = 'critical';
+                        }
                     }
                     let damage = damageValue - this.meActive.defense + this.meActive.seriousInjury;
                     num = Math.floor(Math.random() * 100);
@@ -844,7 +848,7 @@ export default {
                             if (this.meArtifact.some(item => item.name == '小刀')) {
                                 num = Math.floor(Math.random() * 100);
                                 if (num < this.meActive.critical) {
-                                    this.generateDamage('boss', 'normal', (this.meActive.big + this.meActive.power) * (this.meActive.criticalDamage / 100));
+                                    this.generateDamage('boss', 'critical', (this.meActive.big + this.meActive.power) * (this.meActive.criticalDamage / 100));
                                 }
                             } else {
                                 this.generateDamage('boss', 'normal', this.meActive.big + this.meActive.power);
@@ -946,7 +950,7 @@ export default {
                             if (this.bossArtifact.some(item => item.name == '小刀')) {
                                 num = Math.floor(Math.random() * 100);
                                 if (num < this.bossActive.critical) {
-                                    this.generateDamage('me', 'normal', (this.bossActive.big + this.bossActive.power) * (this.bossActive.criticalDamage / 100));
+                                    this.generateDamage('me', 'critical', (this.bossActive.big + this.bossActive.power) * (this.bossActive.criticalDamage / 100));
                                 }
                             } else {
                                 this.generateDamage('me', 'normal', this.bossActive.big + this.bossActive.power);
